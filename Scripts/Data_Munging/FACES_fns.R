@@ -66,3 +66,42 @@ nosey <- function(data, faces = T, group = 'Control', time = 'Post', Metric) {
     pull(Metric)
 }
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# Format original faces data, function
+# Make sure to use the following file: FACES_data_Spring_2019_AllData.csv
+#   This comes from the google sheet Dr. Pearson shared.
+# 
+
+
+format_FACES <- function(data = NULL, path = NULL) {
+  require(tidyverse)
+  
+  if (is.null(data) && is.null(path)) {
+    path <- '../Data/FACES_data_Spring_2019_AllData.csv'
+    data <- read_csv(path)
+  } else if (!is.null(path)) {
+    data <- read_csv(path)
+  }
+  
+  data  %>%
+    # Transform data so that all survey response are in 1 column, and
+    # the corresponding survey is in another column (long data)
+    pivot_longer(`FACES 1`:SEAS10, names_to = 'Survey', values_to = 'Response') %>%
+    
+    # Strip out the question number from the survey name
+    # this standardizes survey names for ez grouping
+    mutate(Survey = str_replace(Survey,'[:digit:]', '') %>% 
+             str_replace('[:digit:]', '')  %>% 
+             str_trim(side = 'both')) %>%
+    
+    # Group by (separate) participant number, time (pre vs post), group (exp vs control), and survey
+    group_by(`Participant #`, Time, Group, Survey) %>%
+    
+    # Label the question number... might not be necessary...
+    mutate(Question = row_number()) %>%
+    
+    ungroup()
+}
