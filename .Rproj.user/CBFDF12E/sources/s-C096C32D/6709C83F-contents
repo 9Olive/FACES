@@ -22,7 +22,7 @@ source('Data_Munging/FACES_fns.R')
 Skip down to the [\textcolor{blue}{next section}](#faces-scale) if you don't need to look at the formating. 
  
 ```{r }
-faces <- read_csv('FACES_data_Spring_2019_AllData.csv')
+faces <- read_csv('../Data/FACES_data_Spring_2019_AllData.csv')
 
 long_face <- faces %>%
   pivot_longer(`FACES 1`:SEAS10, names_to = 'Survey', values_to = 'Response') %>%
@@ -59,7 +59,7 @@ sum_face <- long_face %>%
             Sample = n(),
             stdev = sd(Response))
 
-write_csv(long_face, path = paste0(getwd(), '/long_data.csv'))
+# write_csv(long_face, path = '../Data/long_data.csv')
 ```
  
 How many distinct different combinations of Group, Time, and FACES/non-FACES surveys are there? 
@@ -69,7 +69,7 @@ How many distinct different combinations of Group, Time, and FACES/non-FACES sur
   select(-`Participant #`) %>%
   distinct(FACES, Group, Time))
 
-# write_csv(poss_groupings, path = paste0(getwd(), '/groupings.csv'))
+# write_csv(poss_groupings, path = ../Data/groupings.csv')
 ```
  
 
@@ -160,7 +160,7 @@ tt.df3 <- data.frame('Test' = test,
 ```{r echo = F}
 pvalue_tests <- bind_rows(tt.df1, tt.df2) %>%
   bind_rows(tt.df3)
-write_csv(pvalue_tests, paste0(getwd(), '/PValue_Test.csv'))
+# write_csv(pvalue_tests, paste0(getwd(), '/PValue_Test.csv'))
 knitr::kable(arrange(pvalue_tests, P.Value))
 ```
 

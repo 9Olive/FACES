@@ -1,0 +1,4 @@
+"0","(poss_groupings <- sum_face %>% "
+"0","  ungroup() %>%"
+"0","  select(-`Participant #`) %>%"
+"0","  distinct(FACES, Group, Time))"

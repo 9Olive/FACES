@@ -1,0 +1,11 @@
+"0","faces <- read_csv('../Data/FACES_data_Spring_2019_AllData.csv')
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  Time = [31mcol_character()[39m,
+  Group = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
