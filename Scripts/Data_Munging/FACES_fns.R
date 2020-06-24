@@ -82,6 +82,7 @@ format_FACES <- function(data = NULL, path = NULL) {
   if (is.null(data) && is.null(path)) {
     path <- '../Data/FACES_data_Spring_2019_AllData.csv'
     data <- read_csv(path)
+    print('Used file: FACES_data_Spring_2019_AllData.csv')
   } else if (!is.null(path)) {
     data <- read_csv(path)
   }
