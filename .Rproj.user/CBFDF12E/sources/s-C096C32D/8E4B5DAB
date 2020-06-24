@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1592440263592.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8E4B5DAB",
+    "lastKnownWriteTime" : 1592097334,
+    "last_content_update" : 1592097334,
+    "path" : "F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Data/Viz/DataViz.Rmd",
+    "project_path" : "Data/Viz/DataViz.Rmd",
+    "properties" : {
+        "cursorPosition" : "46,41",
+        "scrollLine" : "20"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

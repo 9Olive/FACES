@@ -1,0 +1,13 @@
+Test,P.Value
+non-FACES - Post: Expr vs Control,0.06346923728527272
+non-FACES - Pre: Expr vs Control,0.09675232863449654
+FACES - Post: Expr vs Control,0.4438537925024032
+FACES - Pre: Expr vs Control,0.9091507898336539
+non-FACES - Experimental: Post vs Pre,0.07111509907988618
+non-FACES - Control: Post vs Pre,0.4908065809384434
+FACES - Experimental: Post vs Pre,0.2888066555965272
+FACES - Control: Post vs Pre,0.9204947384767838
+Post - Experimental: Non-FACES vs FACES Survey,0.6500738685626561
+Post - Control: Non-FACES vs FACES Survey,0.6416418489018733
+Pre - Experimental: Non-FACES vs FACES Survey,0.7805412194523487
+Pre - Control: Non-FACES vs FACES Survey,0.4752327837207715

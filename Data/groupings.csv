@@ -1,0 +1,9 @@
+FACES,Group,Time
+FALSE,Experimental,Post
+FALSE,Experimental,Pre
+TRUE,Experimental,Post
+TRUE,Experimental,Pre
+FALSE,Control,Post
+FALSE,Control,Pre
+TRUE,Control,Post
+TRUE,Control,Pre

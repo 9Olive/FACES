@@ -1,0 +1,6 @@
+"0","faces_tbl %>%"
+"0","  filter(Summary == 'med') %>%"
+"0","  ggplot() +"
+"0","  geom_boxplot(aes(x = Category, y = Response, fill = Group)) +"
+"0","  facet_wrap(Category~Time, scales = 'free_x') +"
+"0","  labs(title = 'Boxplot of Median Response per Question Category')"
