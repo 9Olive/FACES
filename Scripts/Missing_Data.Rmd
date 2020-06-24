@@ -23,6 +23,22 @@ format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv')
 (faces <- format_FACES())
 ```
  
+ 
+```{r}
+faces_sum <- faces %>%
+  group_by(Survey, Time, Group) %>%
+  summarise(score = sum(Response, na.rm = T))
+  
+faces_sum %>% 
+  pivot_wider(id_cols = contains(c('Survey')), 
+              names_from = contains(c('Group', 'Time')),
+              values_from = score) %>%
+  mutate(Post_Comparison = Experimental_Post - Control_Post,
+         Cont_Comparison = Control_Post - Control_Pre,
+         Exp_Comp        = Experimental_Post - Experimental_Pre)
+  
+```
+ 
 Missing data:
 
 ```{r}
