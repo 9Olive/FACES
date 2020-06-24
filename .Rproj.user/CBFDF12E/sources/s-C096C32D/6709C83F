@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1592964307733.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1381460016",
+    "id" : "6709C83F",
+    "lastKnownWriteTime" : 1592964336,
+    "last_content_update" : 1592964336111,
+    "path" : "F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Scripts/EDA.Rmd",
+    "project_path" : "Scripts/EDA.Rmd",
+    "properties" : {
+        "cursorPosition" : "14,27",
+        "last_setup_crc32" : "C096C32D41b40394",
+        "scrollLine" : "6"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
