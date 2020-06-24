@@ -9,9 +9,31 @@ library(tidyverse)
 source('Data_Munging/FACES_fns.R')
 ```
  
+Multiple ways to load data:
+
+```{r}
+# first way, specify data
+fpath <- read_csv('../Data/FACES_data_Spring_2019_AllData.csv')
+format_FACES(data = fpath)
+
+# second way, specify path
+format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv')
+
+# third way, just call the fucntion
+(faces <- format_FACES())
+```
+ 
+Missing data:
+
+```{r}
+faces_missing <- faces %>%
+  filter(is.na(Response)) %>% 
+  group_by(`Participant #`, Time, Group, Survey) %>%
+  summarise(missing = n())
+```
  
 ```{r}
-
+table(faces_missing$`Participant #`, faces_missing$Survey)
 ```
  
  
