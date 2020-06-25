@@ -3,7 +3,7 @@ title: "Handling missing data"
 output: html_notebook
 ---
 
-
+Run this chunk first!
 ```{r setup}
 library(tidyverse)
 source('Data_Munging/FACES_fns.R')
@@ -23,6 +23,8 @@ format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv')
 (faces <- format_FACES())
 ```
  
+## Summing Responses 
+This section pivots teh data back to wide after summing up response by Participant for each Time (Pre and Post), Group (Int and Control), and Survey.  
  
 ```{r}
 faces_sum <- faces %>%
@@ -39,7 +41,8 @@ faces_sum %>%
   
 ```
  
-Missing data:
+## Missing data summary
+The number of NA's or missing data is tallied in this section.
 
 ```{r}
 faces_missing <- faces %>%
@@ -47,6 +50,8 @@ faces_missing <- faces %>%
   group_by(`Participant #`, Time, Group, Survey) %>%
   summarise(missing = n())
 ```
+ 
+ 
  
 ```{r}
 table(faces_missing$`Participant #`, faces_missing$Survey)
