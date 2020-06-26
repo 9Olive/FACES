@@ -17,7 +17,7 @@ fpath <- read_csv('../Data/FACES_data_Spring_2019_AllData.csv')
 format_FACES(data = fpath)
 
 # second way, specify path
-format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv')
+format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv') # merged cells?
 
 # third way, just call the fucntion
 (faces <- format_FACES())
@@ -28,16 +28,16 @@ This section pivots teh data back to wide after summing up response by Participa
  
 ```{r}
 faces_sum <- faces %>%
-  group_by(Survey, Time, Group) %>%
+  group_by(`Participant #`, Survey, Time, Group) %>%
   summarise(score = sum(Response, na.rm = T))
   
 faces_sum %>% 
   pivot_wider(id_cols = contains(c('Survey')), 
-              names_from = contains(c('Group', 'Time')),
+              names_from = contains(c('Group', 'Time', 'Participant #')),
               values_from = score) %>%
   mutate(Post_Comparison = Experimental_Post - Control_Post,
          Cont_Comparison = Control_Post - Control_Pre,
-         Exp_Comp        = Experimental_Post - Experimental_Pre)
+         Exp_Comp        = Experimental_Post - Experimental_Pre) # needs an additional pivot now.
   
 ```
  
