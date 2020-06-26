@@ -1,6 +1,8 @@
 ---
 title: "Handling missing data"
-output: html_notebook
+output: 
+  pdf_document:
+    toc: TRUE
 ---
 
 Run this chunk first!
@@ -11,7 +13,7 @@ source('Data_Munging/FACES_fns.R')
  
 Multiple ways to load data:
 
-```{r}
+```{r include=FALSE}
 # first way, specify data
 fpath <- read_csv('../Data/FACES_data_Spring_2019_AllData.csv')
 format_FACES(data = fpath)
@@ -22,39 +24,146 @@ format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv') # merged cells
 # third way, just call the fucntion
 (faces <- format_FACES())
 ```
- 
-## Summing Responses 
-This section pivots teh data back to wide after summing up response by Participant for each Time (Pre and Post), Group (Int and Control), and Survey.  
- 
-```{r}
-faces_sum <- faces %>%
-  group_by(`Participant #`, Survey, Time, Group) %>%
-  summarise(score = sum(Response, na.rm = T))
-  
-faces_sum %>% 
-  pivot_wider(id_cols = contains(c('Survey')), 
-              names_from = contains(c('Group', 'Time', 'Participant #')),
-              values_from = score) %>%
-  mutate(Post_Comparison = Experimental_Post - Control_Post,
-         Cont_Comparison = Control_Post - Control_Pre,
-         Exp_Comp        = Experimental_Post - Experimental_Pre) # needs an additional pivot now.
-  
-```
- 
-## Missing data summary
-The number of NA's or missing data is tallied in this section.
+
+### Merged Cells  
+Value in merged cells filled accordingly: 
+  - Merged Cell gets "unmerged"
+  - Value in original merged cell occupies the left most cell after unmerging
+
+## Identifying missing data  
+This chunk identifies the missing data by participant, Time, Group, and Survey.
 
 ```{r}
-faces_missing <- faces %>%
-  filter(is.na(Response)) %>% 
+(missing_sum <- faces %>%
+  filter(is.na(Response)) %>%
   group_by(`Participant #`, Time, Group, Survey) %>%
-  summarise(missing = n())
+  summarise(missing_data = sum(is.na(Response))) %>%
+  arrange(missing_data) %>% 
+  ungroup())
 ```
- 
- 
+
+### Splitting the missing data  
+  - Rule: If a participant is missing 2 or less responses, then we keep the participant; 
+    - else: we remove the participant from the affected surveys.
+  - The `distinct` function removes instances where the participant is missing more than 2 responses for both a `pre` and `post` time survey response. One instance in either `Pre` or `Post` is enough to get the record removed. 
+    
+```{r}
+keepers <- missing_sum %>%
+  filter(missing_data <= 2)
+
+throwers <- missing_sum %>%
+  distinct(`Participant #`, Group, Survey, .keep_all = T) %>% # added to removed Pre and Post
+  filter(missing_data > 2)
+```
+
+### Removing `throwers` from the overall dataset  
+  - Right join filters out records
+    - Right join by `Participant #`, `Group`, and `Survey` allows the participant records from `Pre` and `Post` to be matched up. 
+  - The resulting data set is a list of records that needs to be removed from the original data set
+
+```{r}
+(data_to_remove <- faces %>% 
+  right_join(throwers, by = c('Participant #', 'Group', 'Survey'),
+             suffix = c('', '_mis')))
+```
+
+Records removed below: 
+
+```{r}
+(faces_clean <-  setdiff(x = faces, y = select(data_to_remove, -Time_mis, -missing_data)))
+```
+
+#### Quick checks 
+
+```{r}
+# Check that we only took the rows we intended to
+nrow(faces_clean) == nrow(faces) - nrow(data_to_remove)
+
+# Check for missing data
+anyNA(faces_clean)
+```
+
+We still have missing data. Those are from the responses from the missing data in the keepers dataset.
+
+### Imputing the data:  
+  - Right join filters out records, again
+    - Right join by `Participant #`, `Group`, `Survey`, and `Time` because we only want to impute for that particular missing value
+  - Filter down to missing responses, because all questions for each survey category was matched
+  - The resulting data set is a list of records that needs to be imputed
+
+```{r}
+(data_to_impute <- faces %>%
+  right_join(keepers, by = c('Participant #', 'Group', 'Survey', 'Time'),
+             suffix = c('', '_kp')) %>%
+  filter(is.na(Response)))
+```
+
+
+```{r}
+faces_clean2 <- faces_clean %>%
+  group_by(Time, Group, Survey, Question) %>%
+  mutate(Response = ifelse(is.na(Response), mean(Response, na.rm = T), Response)) %>%
+  ungroup()
+```
+
+#### Quick check, again 
+
+```{r}
+# To visulize what we changed
+data_to_impute %>%
+  left_join(faces_clean2, by = c('Participant #', 'Time', 'Group', 'Survey', 'Question'),
+            suffix = c('_mis', '_fill'))
+
+# Should be true
+nrow(faces_clean2) == nrow(faces_clean)
+
+# Should be false
+anyNA(faces_clean2)
+```
+
+Data is clean beyond previous chunk!
+
+
+## Summing Responses  
+This section pivots the data back to wide after summing up response by Participant for each Time (Pre and Post), Group (Int and Control), and Survey.  
  
 ```{r}
-table(faces_missing$`Participant #`, faces_missing$Survey)
+(faces_sum <- faces_clean2 %>%
+   # First group manipulation
+  group_by(`Participant #`, Survey, Time, Group) %>%
+  summarise(score = sum(Response),
+            n_questions = n()) %>%
+  ungroup() %>%
+   
+   # Second group manipulation
+  group_by(Survey, Time, Group) %>%
+  summarise(mean_participant_score = mean(score),
+            spl_size = length(unique(`Participant #`)),
+            question_chk = length(unique(n_questions)) == 1) %>%
+  ungroup())
 ```
+ 
+ First group manipulation 
+  - `score` is a sum of their responses
+  - `n_questions` is the number of questions per survey.
+    - Should be the same across comparisons
+    
+Second group manipulation 
+  - `mean_participant_score` is self explanatory. Should match closely with excel pivot table Shantel put together
+  - `question_chk` is a check to ensure that the number of questions answered by each participant for each survey is the same while averaging responses. 
+  
+## Comparison  via Wilcoxon test...  
+
+Did not do that yet, this chunk needs updating.
+
+```{r}
+faces_sum %>% 
+  pivot_wider(id_cols = c( 'Survey', 'Group'), 
+              names_from = contains(c('Time')),
+              values_from = c(mean_participant_score, spl_size))
+  
+```
+  
+ 
  
  
