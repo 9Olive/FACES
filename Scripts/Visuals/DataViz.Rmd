@@ -9,8 +9,7 @@ output: pdf_document
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
-# library()
-
+source('../Data_Munging/FACES_fns.R')
 theme_set(theme_bw())
 ```
 
@@ -23,7 +22,7 @@ The column headers were then parsed out into the question category and the appli
 Editing saved to `faces_tbl`. 
 
 ```{r message=FALSE, warning=FALSE}
-faces <- read_csv(paste0(dirname(getwd()), '/FACES_data_Spring_2019_AllData.csv'))
+faces <- format_FACES(path = '../../Data/FACES_data_Spring_2019_AllData.csv')
 
 faces_tbl <- faces %>% 
   

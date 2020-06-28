@@ -1,28 +1,31 @@
 ---
-title: "Handling missing data"
+title: "Handling FACES Data"
 output: 
   pdf_document:
     toc: TRUE
 ---
 
+This document walks through the process of loading data, handling missing data, and transforming the data in preparation to run our analysis.
+
 Run this chunk first!
-```{r setup}
+```{r setup, message=FALSE, echo = TRUE}
 library(tidyverse)
 source('Data_Munging/FACES_fns.R')
 ```
  
 Multiple ways to load data:
 
-```{r include=FALSE}
+```{r message = FALSE}
 # first way, specify data
-fpath <- read_csv('../Data/FACES_data_Spring_2019_AllData.csv')
-format_FACES(data = fpath)
+# fpath <- read_csv('../Data/FACES_data_Spring_2019_AllData.csv')
+# format_FACES(data = fpath)
 
 # second way, specify path
-format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv') # merged cells?
+# format_FACES(path = '../Data/FACES_data_Spring_2019_AllData.csv') # merged cells?
 
 # third way, just call the fucntion
-(faces <- format_FACES())
+faces <- format_FACES()
+knitr::kable(sample_n(faces, 20))
 ```
 
 ### Merged Cells  
@@ -119,6 +122,9 @@ nrow(faces_clean2) == nrow(faces_clean)
 
 # Should be false
 anyNA(faces_clean2)
+
+# Saving data
+# write_csv(faces_clean2, path = '../Data/cleaned_FACES_data.csv')
 ```
 
 Data is clean beyond previous chunk!
