@@ -139,7 +139,7 @@ This section pivots the data back to wide after summing up response by Participa
   group_by(`Participant #`, Survey, Time, Group) %>%
   summarise(score = sum(Response),
             n_questions = n()) %>%
-  ungroup() %>%
+  ungroup()) #%>%
    
    # Second group manipulation
   group_by(Survey, Time, Group) %>%
@@ -171,5 +171,23 @@ faces_sum %>%
 ```
   
  
+```{r}
+faces_wilcox <- faces_sum %>%
+  filter(Time == 'Pre') %>% 
+  mutate(Time = factor(Time),
+         Group = factor(Group),
+         score = score + rnorm(n()))
+
+surveys <- unique(faces_wilcox$Survey)
+wilcoxtests <- list(result = list(), survey = c())
+counter <- 1
+
+for (i in surveys) {
+  wilcoxtests$result[[counter]] <- wilcox.test(score ~ Group, data = filter(faces_wilcox, Survey == i))
+  wilcoxtests$survey[counter] <- i
+  counter <- counter + 1
+}
+
+```
  
  
