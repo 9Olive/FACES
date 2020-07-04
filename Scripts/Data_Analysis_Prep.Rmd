@@ -170,6 +170,11 @@ faces_sum %>%
   
 ```
   
+```{r}
+write_csv(faces_sum, )
+```
+
+
  
 ```{r}
 faces_wilcox <- faces_sum %>%

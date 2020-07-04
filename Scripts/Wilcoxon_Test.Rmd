@@ -1,0 +1,102 @@
+---
+title: "Wilcoxon Signed Rank Test"
+author: "Joseph Oliveira"
+date: "7/4/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+## Libraries
+library(tidyverse)
+library(purrr)
+## Loading data:
+faces <- read_csv('../Data/cleaned_FACES_data.csv',
+                  col_types = c('ffffdf'))
+
+```
+
+```{r}
+faces <- faces %>%
+  group_by(Group, `Participant #`, Time, Survey) %>%
+  summarise(avg_resp = mean(Response)) %>%
+  ungroup()
+```
+
+Wilcoxon Test
+
+```{r}
+faces_wilcox <- function(time1, group1, time2, group2, survey) {
+  # Filter to data we need for comparison
+  faces_ <- faces %>%
+    filter(Time %in% c(time1, time2) & Group %in% c(group1, group2))
+  
+  # Create 2 datasets
+  comp1 <- faces_ %>%
+    filter(Time == time1, Group == group1, Survey == survey)
+  
+  comp2 <- faces_ %>%
+    filter(Time == time2, Group == group2, Survey == survey)
+  
+  # check for differences that are near 0.
+  zeros <- which(near(comp1$avg_resp - comp2$avg_resp, 0))
+  
+  # if too many zeors, then we can't compare using wilcoxon test
+  if (length(comp1$avg_resp[-zeros]) < 2) {
+    
+    faces_
+    
+  } else {
+    
+    # If the lengths are unequal. Sample longer sample to obtain equal comparison
+    if (length(comp1$avg_resp) > length(comp2$avg_resp)) {
+      comp1_spl_resp <- sample(comp1$avg_resp, replace = T, size = length(comp2$avg_resp))
+      wilcox.test(comp1_spl_resp, comp2$avg_resp)
+      
+      # Second case for unequal lengths
+    } else if (length(comp1$avg_resp) < length(comp2$avg_resp)) {
+      comp2_spl_resp <- sample(comp2$avg_resp, replace = T, size = length(comp1$avg_resp))
+      wilcox.test(comp1$avg_resp, comp2_spl_resp)
+      
+      # if they are equal, then run comparison.
+      } else wilcox.test(comp1$avg_resp, comp2$avg_resp)
+    }
+}
+
+faces_wilcox('Pre', 'Experimental', 'Pre', 'Control', 'FACES')
+```
+
+```{r}
+distinct_groupings <- faces %>%
+  distinct(Group, Time, Survey)
+
+dist_grp_exp_pre <- distinct_groupings %>%
+  filter(Group == 'Experimental', Time == 'Pre')
+
+dist_grp_ctrl_pre <- distinct_groupings %>%
+  filter(Group == 'Control', Time == 'Pre')
+
+dist_grp_exp_post <- distinct_groupings %>%
+  filter(Group == 'Experimental', Time == 'Post')
+
+dist_grp_ctrl_post <- distinct_groupings %>%
+  filter(Group == 'Control', Time == 'Post')
+
+first_comp <- inner_join(dist_grp_exp_pre, dist_grp_ctrl_pre, by = c("Survey", "Time"))
+secnd_comp <- inner_join(dist_grp_exp_post, dist_grp_ctrl_post, by = c("Survey", "Time"))
+third_comp <- inner_join(dist_grp_exp_pre, dist_grp_exp_post, by = c("Survey", "Group"))
+forth_comp <- inner_join(dist_grp_ctrl_pre, dist_grp_ctrl_post, by = c("Survey", "Group"))
+
+group_comparison <- bind_rows(first_comp, secnd_comp)
+
+time_comparison <- bind_rows(third_comp, forth_comp)
+```
+
+```{r}
+group_comparison %>%
+  mutate(test = pmap(list(time1 = Time, group1 = Group.x, time2 = Time, group2 = Group.y, survey = Survey), 
+                     faces_wilcox)) -> x
+
+x$test[1]
+```
+
