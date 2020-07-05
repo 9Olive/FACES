@@ -126,7 +126,7 @@ group_wilcoxon <- group_comparison %>%
                      faces_wilcox, paired = F, alternative = "less"),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
          effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))) / 
-                                unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs'))))
+                                unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
 
 time_wilcoxon  <- time_comparison %>%
   mutate(test = pmap(list(time1 = Time.x, group1 = Group, 
@@ -135,7 +135,7 @@ time_wilcoxon  <- time_comparison %>%
                      faces_wilcox, paired = F, alternative = "less"),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
          effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))) / 
-                                unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs'))))
+                                unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
 ```
 
 ## Wilcoxon Test Results
