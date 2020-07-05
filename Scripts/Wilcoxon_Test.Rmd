@@ -21,7 +21,7 @@ set.seed(1)
 ```{r}
 faces <- faces %>%
   group_by(Group, `Participant #`, Time, Survey) %>%
-  summarise(avg_resp = mean(Response)) %>%
+  summarise(avg_resp = sum(Response)) %>%
   ungroup()
 ```
 
@@ -52,31 +52,35 @@ faces_wilcox <- function(time1, group1, time2, group2, survey, ...) {
   
   # 3 Cases need to be handled:
   # 1. If the lengths are unequal. Sample longer sample to obtain equal comparison
-  if (n1 > n2) {
-    
-    comp1_spl_resp <- sample(comp1$avg_resp, replace = T, size = n2)
-    
-    x <- wilcox.test(comp1_spl_resp, comp2$avg_resp, ...)
-    x$obs <- n2 + n2
-    return(x)
-    
-    # Second case for unequal lengths
-    } else if (n1 < n2) {
-    
-    comp2_spl_resp <- sample(comp2$avg_resp, replace = T, size = n1)
-    
-    x <- wilcox.test(comp1$avg_resp, comp2_spl_resp, ...)
-    x$obs <- n1 + n1
-    return(x)
-    
-    # if they are equal, then run comparison.
-    } else {
-      
-      x <- wilcox.test(comp1$avg_resp, comp2$avg_resp, ...)
+  # if (n1 > n2) {
+  #   
+  #   comp1_spl_resp <- sample(comp1$avg_resp, replace = T, size = n2)
+  #   
+  #   x <- wilcox.test(comp1_spl_resp, comp2$avg_resp, ...)
+  #   x$obs <- n2 + n2
+  #   return(x)
+  #   
+  #   # Second case for unequal lengths
+  #   } else if (n1 < n2) {
+  #   
+  #   comp2_spl_resp <- sample(comp2$avg_resp, replace = T, size = n1)
+  #   
+  #   x <- wilcox.test(comp1$avg_resp, comp2_spl_resp, ...)
+  #   x$obs <- n1 + n1
+  #   return(x)
+  #   
+  #   # if they are equal, then run comparison.
+  #   } else {
+  #     
+  #     x <- wilcox.test(comp1$avg_resp, comp2$avg_resp, ...)
+  #     x$obs <- n1 + n2
+  #     return(x)
+  #     
+  #   }
+  
+  x <- wilcox.test(comp1$avg_resp, comp2$avg_resp, ...)
       x$obs <- n1 + n2
       return(x)
-      
-      }
   }
 ```
 
@@ -132,7 +136,7 @@ time_wilcoxon  <- time_comparison %>%
   mutate(test = pmap(list(time1 = Time.x, group1 = Group, 
                           time2 = Time.y, group2 = Group, 
                           survey = Survey),
-                     faces_wilcox, paired = F, alternative = "less"),
+                     faces_wilcox, paired = T, alternative = "less"),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
          effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))) / 
                                 unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
