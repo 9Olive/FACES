@@ -127,7 +127,7 @@ group_wilcoxon <- group_comparison %>%
   mutate(test = pmap(list(time1 = Time, group1 = Group.x, 
                           time2 = Time, group2 = Group.y, 
                           survey = Survey), 
-                     faces_wilcox, paired = F, alternative = "less"),
+                     faces_wilcox, paired = F, alternative = "two.sided"),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
          effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))) / 
                                 unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
