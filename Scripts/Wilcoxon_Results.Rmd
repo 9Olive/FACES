@@ -101,7 +101,7 @@ knitr::kable(select(group_wilcoxon, Time, Survey,
 ## Pre vs. Post Results
 
   - $H_0$: There is no difference between the distribution of {*Experimental*, *Control*} *Pre* survey responses and the distribution of {*Experimental*, *Control*} *Post* survey responses.
-  - $H_A$: The distribution of the {*Pre*, *Post*} *Pre* survey responses $\neq$ the distirbution of the {*Pre*, *Post*} *Post* survey responses.
+  - $H_A$: The mean of the distribution of the {*Pre*, *Post*} *Pre* survey responses $<$ the mean of the distirbution of the {*Pre*, *Post*} *Post* survey responses.
 
 ```{r echo=FALSE}
 knitr::kable(select(time_wilcoxon, Group, Survey, 
