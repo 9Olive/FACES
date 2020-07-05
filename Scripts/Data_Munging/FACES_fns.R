@@ -106,3 +106,39 @@ format_FACES <- function(data = NULL, path = NULL) {
     
     ungroup()
 }
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# Wilcoxon Function for FACES data
+# Make sure to use the following file: FACES_data_Spring_2019_AllData.csv
+# Wilcoxon Test function
+# 
+# 1. Cleaned `faces` data is filtered for the Time (`Pre` or `Post`) and Group (`Experimental` or `Control`). Depends one what is being compared
+# 2. Two data sets are created to create the vectors for comparison
+# 3. Lengths of each comparison vector is saved
+
+faces_wilcox <- function(time1, group1, time2, group2, survey, ...) {
+  # Filter to data we need for comparison
+  faces_ <- read_csv('../Data/cleaned_FACES_data.csv',
+                     col_types = c('ffffdf')) %>%
+    group_by(Group, `Participant #`, Time, Survey) %>%
+    summarise(tot_resp = sum(Response)) %>%
+    ungroup() %>%
+    filter(Time %in% c(time1, time2) & Group %in% c(group1, group2))
+  
+  # Create 2 datasets
+  comp1 <- faces_ %>%
+    filter(Time == time1, Group == group1, Survey == survey)
+  
+  comp2 <- faces_ %>%
+    filter(Time == time2, Group == group2, Survey == survey)
+  
+  n1 <- length(comp1$tot_resp)
+  n2 <- length(comp2$tot_resp)
+  
+  x <- wilcox.test(comp1$tot_resp, comp2$tot_resp, ...)
+  x$obs <- n1 + n2
+  return(x)
+}
