@@ -13,7 +13,7 @@ library(purrr)
 ## Loading data:
 faces <- read_csv('../Data/cleaned_FACES_data.csv',
                   col_types = c('ffffdf'))
-
+set.seed(1)
 ```
 
 ## Loading data in from the `Wilcoxon_Test.Rmd` cleaning procedure
@@ -35,7 +35,7 @@ Wilcoxon Test function
     c. If the vector of response variables in data set A and B are equal length
 
 ```{r}
-faces_wilcox <- function(time1, group1, time2, group2, survey) {
+faces_wilcox <- function(time1, group1, time2, group2, survey, ...) {
   # Filter to data we need for comparison
   faces_ <- faces %>%
     filter(Time %in% c(time1, time2) & Group %in% c(group1, group2))
@@ -60,7 +60,7 @@ faces_wilcox <- function(time1, group1, time2, group2, survey) {
     
     comp2_spl_resp <- sample(comp2$avg_resp, replace = T, size = length(comp1$avg_resp))
     
-    wilcox.test(comp1$avg_resp, comp2_spl_resp)
+    wilcox.test(comp1$avg_resp, comp2_spl_resp, ...)
     
     # if they are equal, then run comparison.
     } else wilcox.test(comp1$avg_resp, comp2$avg_resp)
@@ -97,30 +97,38 @@ time_comparison <- bind_rows(third_comp, forth_comp) %>% mutate_all(as.character
 
 # Running Wilcoxon tests
 
+test: `pmap` will map specified columns of a tibble to the arguments of a function., and will use each record of the specified columns as an argument in the function specified. 
+
+p.value: `map` is like `lapply` but for tibbles. Just like `pmap` it iterates through each record of specified column, passing it to the function call. Here the function calls are subsetting calls, just instead of `x[1]` or `x[[1]]` I am calling `'['(x)` or rater `'['( '['( x ) )`. The back-ticks make R treat the call as a `prefix`, `fn(arg1, arg2)`, instead of `infix`, `arg1 fn arg2`. 
+  
+  - For each test result, I'm pulling out the p.value: `test[[x]]$p.value`
+
+
 ```{r message=FALSE, warning=FALSE}
 group_wilcoxon <- group_comparison %>%
+  # defined the test result
   mutate(test = pmap(list(time1 = Time, group1 = Group.x, 
                           time2 = Time, group2 = Group.y, 
                           survey = Survey), 
-                     faces_wilcox),
+                     faces_wilcox, paired = F),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))))
 
 time_wilcoxon  <- time_comparison %>%
   mutate(test = pmap(list(time1 = Time.x, group1 = Group, 
                           time2 = Time.y, group2 = Group, 
                           survey = Survey),
-                     faces_wilcox),
+                     faces_wilcox, paired = F),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))))
 ```
 
 ```{r}
-knitr::kable(select(group_wilcoxon, -test) %>%
+knitr::kable(select(group_wilcoxon, Time, Survey, Group.x, Group.y, p.value) %>%
                group_by(Survey) %>%
                arrange(Survey, p.value, Time))
 ```
 
 ```{r}
-knitr::kable(select(time_wilcoxon, -test) %>%
+knitr::kable(select(time_wilcoxon, Group, Survey, Time.x, Time.y, p.value) %>%
                group_by(Survey) %>%
                arrange(Survey, p.value, Group))
 ```
