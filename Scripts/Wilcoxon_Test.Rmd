@@ -50,34 +50,6 @@ faces_wilcox <- function(time1, group1, time2, group2, survey, ...) {
   n1 <- length(comp1$avg_resp)
   n2 <- length(comp2$avg_resp)
   
-  # 3 Cases need to be handled:
-  # 1. If the lengths are unequal. Sample longer sample to obtain equal comparison
-  # if (n1 > n2) {
-  #   
-  #   comp1_spl_resp <- sample(comp1$avg_resp, replace = T, size = n2)
-  #   
-  #   x <- wilcox.test(comp1_spl_resp, comp2$avg_resp, ...)
-  #   x$obs <- n2 + n2
-  #   return(x)
-  #   
-  #   # Second case for unequal lengths
-  #   } else if (n1 < n2) {
-  #   
-  #   comp2_spl_resp <- sample(comp2$avg_resp, replace = T, size = n1)
-  #   
-  #   x <- wilcox.test(comp1$avg_resp, comp2_spl_resp, ...)
-  #   x$obs <- n1 + n1
-  #   return(x)
-  #   
-  #   # if they are equal, then run comparison.
-  #   } else {
-  #     
-  #     x <- wilcox.test(comp1$avg_resp, comp2$avg_resp, ...)
-  #     x$obs <- n1 + n2
-  #     return(x)
-  #     
-  #   }
-  
   x <- wilcox.test(comp1$avg_resp, comp2$avg_resp, ...)
       x$obs <- n1 + n2
       return(x)
@@ -128,18 +100,27 @@ group_wilcoxon <- group_comparison %>%
                           time2 = Time, group2 = Group.y, 
                           survey = Survey), 
                      faces_wilcox, paired = F, alternative = "two.sided"),
+         test_statistic = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'statistic'))),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
-         effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'statistic'))) / 
-                                unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
+         effect_size =  test_statistic / unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
 
 time_wilcoxon  <- time_comparison %>%
   mutate(test = pmap(list(time1 = Time.x, group1 = Group, 
                           time2 = Time.y, group2 = Group, 
                           survey = Survey),
                      faces_wilcox, paired = T, alternative = "less"),
+         test_statistic = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'statistic'))),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
-         effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'statistic'))) / 
-                                unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
+         effect_size = test_statistic / unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
+
+c1 <- faces %>%
+  filter(Time == 'Pre' & Group == 'Experimental' & Survey == 'FACES') %>%
+  pull(avg_resp)
+c2 <- faces %>%
+  filter(Time == 'Post' & Group == 'Experimental' & Survey == 'FACES') %>%
+  pull(avg_resp)
+wilcox.test(c1, c2, paired = T, alternative = 'less')
+time_wilcoxon
 ```
 
 ## Wilcoxon Test Results
@@ -148,7 +129,7 @@ time_wilcoxon  <- time_comparison %>%
 ```{r echo=FALSE}
 knitr::kable(select(group_wilcoxon, Time, Survey, 
                     Group.x, Group.y, 
-                    p.value, effect_size) %>%
+                    test_statistic, p.value, effect_size) %>%
                group_by(Survey) %>%
                arrange(Survey, p.value, Time))
 ```
@@ -160,7 +141,7 @@ knitr::kable(select(group_wilcoxon, Time, Survey,
 ```{r echo=FALSE}
 knitr::kable(select(time_wilcoxon, Group, Survey, 
                     Time.x, Time.y, 
-                    p.value, effect_size) %>%
+                    test_statistic, p.value, effect_size) %>%
                group_by(Survey) %>%
                arrange(Survey, p.value, Group))
 ```

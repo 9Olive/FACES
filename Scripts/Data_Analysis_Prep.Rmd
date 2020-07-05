@@ -43,6 +43,21 @@ This chunk identifies the missing data by participant, Time, Group, and Survey.
   summarise(missing_data = sum(is.na(Response))) %>%
   arrange(missing_data) %>% 
   ungroup())
+
+missing_sum$missing_data
+obs <- faces %>%
+  filter(!is.na(Response)) %>%
+  group_by(`Participant #`, Time, Group, Survey) %>%
+  summarise(obs = n()) %>% 
+  ungroup() %>%
+  pull(obs) %>%
+  sum()
+
+missing_obs <- missing_sum %>%
+  pull(missing_data) %>%
+  sum()
+
+missing_obs / obs;missing_obs;obs
 ```
 
 ### Splitting the missing data  
