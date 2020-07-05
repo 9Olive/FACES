@@ -16,6 +16,8 @@ faces <- read_csv('../Data/cleaned_FACES_data.csv',
 
 ```
 
+## Loading data in from the `Wilcoxon_Test.Rmd` cleaning procedure
+
 ```{r}
 faces <- faces %>%
   group_by(Group, `Participant #`, Time, Survey) %>%
@@ -23,7 +25,14 @@ faces <- faces %>%
   ungroup()
 ```
 
-Wilcoxon Test
+Wilcoxon Test function
+  
+  1. Cleaned `faces` data is filtered for the Time (`Pre` or `Post`) and Group (`Experimental` or `Control`). Depends one what is being compared
+  2. Two data sets are created to create the vectors for comparison
+  3. 3 Cases need to be handled
+    a. If the vector of response variables in data set A are longer than B
+    b. If the vector of response variables in data set B are longer than A
+    c. If the vector of response variables in data set A and B are equal length
 
 ```{r}
 faces_wilcox <- function(time1, group1, time2, group2, survey) {
@@ -38,33 +47,27 @@ faces_wilcox <- function(time1, group1, time2, group2, survey) {
   comp2 <- faces_ %>%
     filter(Time == time2, Group == group2, Survey == survey)
   
-  # check for differences that are near 0.
-  zeros <- which(near(comp1$avg_resp - comp2$avg_resp, 0))
-  
-  # if too many zeors, then we can't compare using wilcoxon test
-  if (length(comp1$avg_resp[-zeros]) < 2) {
+  # 3 Cases need to be handled:
+  # 1. If the lengths are unequal. Sample longer sample to obtain equal comparison
+  if (length(comp1$avg_resp) > length(comp2$avg_resp)) {
     
-    faces_
+    comp1_spl_resp <- sample(comp1$avg_resp, replace = T, size = length(comp2$avg_resp))
     
-  } else {
+    wilcox.test(comp1_spl_resp, comp2$avg_resp)
     
-    # If the lengths are unequal. Sample longer sample to obtain equal comparison
-    if (length(comp1$avg_resp) > length(comp2$avg_resp)) {
-      comp1_spl_resp <- sample(comp1$avg_resp, replace = T, size = length(comp2$avg_resp))
-      wilcox.test(comp1_spl_resp, comp2$avg_resp)
-      
-      # Second case for unequal lengths
+    # Second case for unequal lengths
     } else if (length(comp1$avg_resp) < length(comp2$avg_resp)) {
-      comp2_spl_resp <- sample(comp2$avg_resp, replace = T, size = length(comp1$avg_resp))
-      wilcox.test(comp1$avg_resp, comp2_spl_resp)
-      
-      # if they are equal, then run comparison.
-      } else wilcox.test(comp1$avg_resp, comp2$avg_resp)
-    }
-}
-
-faces_wilcox('Pre', 'Experimental', 'Pre', 'Control', 'FACES')
+    
+    comp2_spl_resp <- sample(comp2$avg_resp, replace = T, size = length(comp1$avg_resp))
+    
+    wilcox.test(comp1$avg_resp, comp2_spl_resp)
+    
+    # if they are equal, then run comparison.
+    } else wilcox.test(comp1$avg_resp, comp2$avg_resp)
+  }
 ```
+
+## Creating the comparison groups for the function above. 
 
 ```{r}
 distinct_groupings <- faces %>%
@@ -87,16 +90,38 @@ secnd_comp <- inner_join(dist_grp_exp_post, dist_grp_ctrl_post, by = c("Survey",
 third_comp <- inner_join(dist_grp_exp_pre, dist_grp_exp_post, by = c("Survey", "Group"))
 forth_comp <- inner_join(dist_grp_ctrl_pre, dist_grp_ctrl_post, by = c("Survey", "Group"))
 
-group_comparison <- bind_rows(first_comp, secnd_comp)
+group_comparison <- bind_rows(first_comp, secnd_comp) %>% mutate_all(as.character)
 
-time_comparison <- bind_rows(third_comp, forth_comp)
+time_comparison <- bind_rows(third_comp, forth_comp) %>% mutate_all(as.character)
+```
+
+# Running Wilcoxon tests
+
+```{r message=FALSE, warning=FALSE}
+group_wilcoxon <- group_comparison %>%
+  mutate(test = pmap(list(time1 = Time, group1 = Group.x, 
+                          time2 = Time, group2 = Group.y, 
+                          survey = Survey), 
+                     faces_wilcox),
+         p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))))
+
+time_wilcoxon  <- time_comparison %>%
+  mutate(test = pmap(list(time1 = Time.x, group1 = Group, 
+                          time2 = Time.y, group2 = Group, 
+                          survey = Survey),
+                     faces_wilcox),
+         p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))))
 ```
 
 ```{r}
-group_comparison %>%
-  mutate(test = pmap(list(time1 = Time, group1 = Group.x, time2 = Time, group2 = Group.y, survey = Survey), 
-                     faces_wilcox)) -> x
+knitr::kable(select(group_wilcoxon, -test) %>%
+               group_by(Survey) %>%
+               arrange(Survey, p.value, Time))
+```
 
-x$test[1]
+```{r}
+knitr::kable(select(time_wilcoxon, -test) %>%
+               group_by(Survey) %>%
+               arrange(Survey, p.value, Group))
 ```
 
