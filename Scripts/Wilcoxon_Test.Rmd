@@ -129,7 +129,7 @@ group_wilcoxon <- group_comparison %>%
                           survey = Survey), 
                      faces_wilcox, paired = F, alternative = "two.sided"),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
-         effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))) / 
+         effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'statistic'))) / 
                                 unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
 
 time_wilcoxon  <- time_comparison %>%
@@ -138,7 +138,7 @@ time_wilcoxon  <- time_comparison %>%
                           survey = Survey),
                      faces_wilcox, paired = T, alternative = "less"),
          p.value = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))),
-         effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'p.value'))) / 
+         effect_size = unlist(map(test, function(x) `$`(`[`(`[`(x)), 'statistic'))) / 
                                 unlist(map(test, function(x) `$`(`[`(`[`(x)), 'obs')))**0.5)
 ```
 
