@@ -3,14 +3,15 @@ faces_avg <- faces %>%
   summarise(avg_resp = mean(Response)) %>%
   ungroup()
 
-faces_avg <- faces %>%
+faces_sum <- faces %>%
   group_by(Group, `Participant #`, Time, Survey) %>%
   summarise(avg_resp = sum(Response)) %>%
   ungroup()
 
+
 #Assuming the faces data is cleaned correctly. can be verified elswhere.
 #starting w/ base faces data
-prePostExp <- faces %>%
+prePostExp <- faces_sum %>%
   filter(Group == 'Experimental') %>% 
   mutate(Survey = factor(Survey))
 
@@ -28,7 +29,7 @@ colnames(pValppExp) <- surveys
 pValppExp        
 
 
-prePostCon <- faces %>%
+prePostCon <- faces_sum %>%
   filter(Group == 'Control') %>% 
   mutate(Survey = factor(Survey))
 
@@ -49,7 +50,7 @@ pValppCon
   
   
 
-tcPre <- faces %>%
+tcPre <- faces_sum %>%
   filter(Time == 'Pre') %>% 
   mutate(Survey = factor(Survey), factor(Group))
 
@@ -66,7 +67,7 @@ colnames(pValTCPre) <- surveys
 pValTCPre        
 
 
-tcPost <- faces %>%
+tcPost <- faces_sum %>%
   filter(Time == 'Post') %>% 
   mutate(Survey = factor(Survey), factor(Group))
 

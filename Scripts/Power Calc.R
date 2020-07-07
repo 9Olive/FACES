@@ -37,7 +37,7 @@ for (i in 3:5) {
 }
 
 #histograms of the faces experimental data (diff between pre and post)
-wider <- faces %>% 
+wider <- faces_avg %>% 
   pivot_wider(id_cols = c('Participant #', 'Survey', 'Group'), 
               names_from = contains(c('Time')),
               values_from = c(avg_resp)) %>%
@@ -82,4 +82,3 @@ for (i in 1:6) {
 ttestSample <- t(ttestSample)
 colnames(ttestSample) <- surveys
 ttestSample
-

@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Scripts/Data_Analysis_Prep.Rmd="DD6CBB15"
-F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Scripts/Data_Munging/FACES_fns.R="86398BB4"
-F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Scripts/EDA.Rmd="E0F51288"
-F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Scripts/Visuals/DataViz.Rmd="EE461EBA"
-F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Scripts/Wilcoxon_Results.Rmd="99D8C4D1"
-F:/Classes/NCSU/542 Statistical Practice/FACES Group Project/Scripts/Wilcoxon_Test.Rmd="76F6E21C"
-F:/Classes/NCSU/558 Data Science for Statisticians/Homework/Week2/ST558_HW2_Joseph_Oliveira.Rmd="85F02677"
-=======
 C:/Users/James/Documents/540/Project/Final Project.Rmd="E045EF5"
 C:/Users/James/Documents/540/Week 6/homework6.Rmd="D5A6770D"
 C:/Users/James/Documents/540/Week 8/ST540-602-Homework-8-James-Carr.rmd="10297700"
@@ -15,5 +6,7 @@ C:/Users/James/Documents/R Projects/FACES/Scripts/Data_Munging/FACES_fns.R="5814
 C:/Users/James/Documents/R Projects/FACES/Scripts/EDA.Rmd="ED142BEC"
 C:/Users/James/Documents/R Projects/FACES/Scripts/Gut Check.R="DE0759D6"
 C:/Users/James/Documents/R Projects/FACES/Scripts/Power Calc.R="93909749"
+C:/Users/James/Documents/R Projects/FACES/Scripts/WilcoxValidation-SNW.R="91A63203"
+C:/Users/James/Documents/R Projects/FACES/Scripts/Wilcoxon_Results.Rmd="22D48D6E"
 C:/Users/James/Documents/R Projects/FACES/Scripts/Wilcoxon_Test.Rmd="DF6766E4"
->>>>>>> 27746406437e95a9c2e3320c0eea3d853d7af570
+C:/Users/James/Documents/R Projects/FACES/Scripts/t-test outputs.R="53B1079"
