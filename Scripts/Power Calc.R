@@ -62,11 +62,14 @@ require(WMWssp)
 sampleSize <- c()
 for (i in 1:6) {
   temp <- wider %>% filter(Survey==surveys[i])
-  sampleSize[i] <- WMWssp(temp$Pre, temp$Post, alpha = 0.05, power = 0.8)[6]
+  sampleSize[i] <- summary(WMWssp(temp$Pre, temp$Post, 
+                                  alpha = 0.05, power = 0.8,
+                                  t="min"))$Results[6]
 }
 sampleSize <- t(sampleSize)
 colnames(sampleSize) <- surveys
 sampleSize
+
 
 
 #calculate these for the t-test
@@ -78,6 +81,49 @@ for (i in 1:6) {
   poolVar <- ((sd(temp$Post)^2 + sd(temp$Pre)^2)/2)^0.5
   ttestSample[i] <- pwr.t.test(d=diff/poolVar, power=0.80, 
                             sig.level=0.05, type="paired", alternative='greater')[1]
+}
+ttestSample <- t(ttestSample)
+colnames(ttestSample) <- surveys
+ttestSample
+
+
+##power calcs on test vs control group post
+wider <- faces_avg %>% 
+  pivot_wider(id_cols = c('Participant #', 'Survey', 'Time'), 
+              names_from = contains(c('Group')),
+              values_from = c(avg_resp)) %>%
+  filter(Time == 'Post')
+
+
+sampleSize <- c()
+for (i in 1:6) {
+  temp <- wider %>% filter(Survey==surveys[i])
+  sampleSize[i*2 - 1] <- summary(WMWssp(temp$Control, temp$Experimental, 
+                                  alpha = 0.05, power = 0.8,
+                                  t="min"))$Results[6]
+  sampleSize[i*2] <- summary(WMWssp(temp$Control, temp$Experimental, 
+                                  alpha = 0.05, power = 0.8,
+                                  t="min"))$Results[7]
+}
+sampleSize <- t(sampleSize)
+colnames(sampleSize) <- surveys
+sampleSize
+
+
+
+#calculate these for the t-test
+require(pwr)
+ttestSample <- c()
+for (i in 1:6) {
+  temp <- wider %>% filter(Survey==surveys[i])
+  diff <- mean(na.omit(temp$Experimental)) - mean(na.omit(temp$Control))
+  n1 <- length(na.omit(temp$Experimental)) - 1
+  n2 <- length(na.omit(temp$Control)) - 1
+  var1 <- sd(na.omit(temp$Experimental))^2
+  var2 <- sd(na.omit(temp$Control))^2
+  poolsd <- (((n1*var1) + (n2*var2)) / (n1 + n2 - 2))^.5
+  ttestSample[i] <- pwr.t.test(d=diff/poolsd, power=0.80, 
+                               sig.level=0.05, type="paired", alternative='greater')[1]
 }
 ttestSample <- t(ttestSample)
 colnames(ttestSample) <- surveys
