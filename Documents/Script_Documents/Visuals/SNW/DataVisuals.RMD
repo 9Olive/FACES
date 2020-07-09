@@ -1,0 +1,45 @@
+---
+title: "Data visualizations"
+author: "Shantel Ward"
+date: "7/8/2020"
+output: pdf_document
+---
+  
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+faces <- read_csv("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Data/cleaned_FACES_data.csv")
+
+faces_tbl <- faces %>% 
+  mutate(Survey = factor(Survey)) %>%
+  group_by(`Participant #`, Time, Group, Survey) %>%
+  summarise(Total_Score = sum(Response),
+            Total_Questions = length(unique(Question)))
+
+faces_tbl$`Participant #`<- as.factor(faces_tbl$`Participant #`) #used factor instead of character to preserve order 
+
+
+setwd("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Documents/Script_Documents/Visuals/SNW")
+
+category_Exp<-faces_tbl%>%filter(Survey=="FES", Group=="Experimental")
+  ggplot(category_Exp, aes(x = `Participant #`,y = Total_Score, group = Time)) + 
+    geom_line(aes(color = Time, linetype = Time)) +
+    geom_point(aes(shape = Time, color = Time)) +
+    scale_color_manual(values=c("orange", "blue")) +
+    ggtitle("FES Scores - Experimental Group (Pre vs Post)") +
+    theme(plot.title = element_text(hjust = 0.5)) #to center title 
+ggsave(filename = 'FES_Experimental_post_vs_pre.png', width = 16, height = 9, units = 'in')
+dev.off()
+
+category_AKS<-faces_tbl%>%filter(Survey=="AKS", Group=="Experimental")
+ggplot(category_AKS, aes(x = `Participant #`,y = Total_Score, group = Time)) + 
+  geom_line(aes(color = Time, linetype = Time)) +
+  geom_point(aes(shape = Time, color = Time)) +
+  scale_color_manual(values=c("orange", "blue")) +
+  ggtitle("AKS Scores - Experimental Group (Pre vs Post)") +
+  theme(plot.title = element_text(hjust = 0.5)) #to center title 
+
+ggsave(filename = 'AKS_Experimental_post_vs_pre.png', width = 16, height = 9, units = 'in')
+dev.off()
+```
+
