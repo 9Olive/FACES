@@ -123,48 +123,56 @@
 
 \KeywordTok{setwd}\NormalTok{(}\StringTok{"C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Documents/Script_Documents/Visuals/SNW"}\NormalTok{)}
 
-\NormalTok{category_Exp<-faces_tbl}\OperatorTok{%>%}\KeywordTok{filter}\NormalTok{(Survey}\OperatorTok{==}\StringTok{"FES"}\NormalTok{, Group}\OperatorTok{==}\StringTok{"Experimental"}\NormalTok{)}
+\NormalTok{createBarPlot <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(survey) \{}
+  
+\NormalTok{  category_Exp<-faces_tbl}\OperatorTok{%>%}\KeywordTok{filter}\NormalTok{(Survey}\OperatorTok{==}\NormalTok{survey, Group}\OperatorTok{==}\StringTok{"Experimental"}\NormalTok{)}
+
+  \CommentTok{#meanCalc<-category_Exp%>%group_by(Time)%>%summarise(Mean=mean(Total_Score))}
+  \CommentTok{#extractmeanPre<-meanCalc%>%filter(Time=="Pre")%>%select(Mean)}
+  \CommentTok{#meanPre<-extractmeanPre$Mean[1]}
+  \CommentTok{#extractmeanPost<-meanCalc%>%filter(Time=="Post")%>%select(Mean)}
+  \CommentTok{#meanPost<-extractmeanPost$Mean[1]}
+
+\NormalTok{  medianCalc<-category_Exp}\OperatorTok{%>%}\KeywordTok{group_by}\NormalTok{(Time)}\OperatorTok{%>%}\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{Median=}\KeywordTok{median}\NormalTok{(Total_Score))}
+\NormalTok{  extractmedianPre<-medianCalc}\OperatorTok{%>%}\KeywordTok{filter}\NormalTok{(Time}\OperatorTok{==}\StringTok{"Pre"}\NormalTok{)}\OperatorTok{%>%}\KeywordTok{select}\NormalTok{(Median)}
+\NormalTok{  medianPre<-extractmedianPre}\OperatorTok{$}\NormalTok{Median[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  extractmedianPost<-medianCalc}\OperatorTok{%>%}\KeywordTok{filter}\NormalTok{(Time}\OperatorTok{==}\StringTok{"Post"}\NormalTok{)}\OperatorTok{%>%}\KeywordTok{select}\NormalTok{(Median)}
+\NormalTok{  medianPost<-extractmedianPost}\OperatorTok{$}\NormalTok{Median[}\DecValTok{1}\NormalTok{]}
+
+  \CommentTok{#category_Exp<-cbind(category_Exp,meanPre=meanPreValues,meanPost=meanPostValues)}
+
   \KeywordTok{ggplot}\NormalTok{(category_Exp, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \StringTok{`}\DataTypeTok{Participant #}\StringTok{`}\NormalTok{,}\DataTypeTok{y =}\NormalTok{ Total_Score, }\DataTypeTok{group =}\NormalTok{ Time)) }\OperatorTok{+}\StringTok{ }
-\StringTok{    }\KeywordTok{geom_line}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{color =}\NormalTok{ Time, }\DataTypeTok{linetype =}\NormalTok{ Time)) }\OperatorTok{+}
-\StringTok{    }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{shape =}\NormalTok{ Time, }\DataTypeTok{color =}\NormalTok{ Time)) }\OperatorTok{+}
-\StringTok{    }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"orange"}\NormalTok{, }\StringTok{"blue"}\NormalTok{)) }\OperatorTok{+}
-\StringTok{    }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"FES Scores - Experimental Group (Pre vs Post)"}\NormalTok{) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_col}\NormalTok{(}\DataTypeTok{position =} \StringTok{"dodge"}\NormalTok{,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{fill=}\NormalTok{Time)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{coord_flip}\NormalTok{() }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept =}\NormalTok{ medianPre, }\DataTypeTok{linetype =} \StringTok{"Median of Pre"}\NormalTok{), }\DataTypeTok{size=}\DecValTok{1}\NormalTok{, }\DataTypeTok{color =} \StringTok{"green"}\NormalTok{) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept =}\NormalTok{ medianPost, }\DataTypeTok{linetype =} \StringTok{"Median of Post"}\NormalTok{), }\DataTypeTok{size=}\DecValTok{1}\NormalTok{, }\DataTypeTok{color =} \StringTok{"orange"}\NormalTok{) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_text}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{label =}\StringTok{""}\NormalTok{), }\DataTypeTok{position =} \KeywordTok{position_dodge}\NormalTok{(}\DataTypeTok{width =} \FloatTok{.75}\NormalTok{)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{scale_linetype_manual}\NormalTok{(}\DataTypeTok{name =} \StringTok{"Median Lines"}\NormalTok{, }\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{), }
+                      \DataTypeTok{guide =} \KeywordTok{guide_legend}\NormalTok{(}\DataTypeTok{override.aes =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{color =} \KeywordTok{c}\NormalTok{(}\StringTok{"orange"}\NormalTok{, }\StringTok{"green"}\NormalTok{)))) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{ggtitle}\NormalTok{(}\KeywordTok{paste}\NormalTok{(survey,}\StringTok{" Scores - Experimental Group (Pre vs Post)"}\NormalTok{)) }\OperatorTok{+}
 \StringTok{    }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{plot.title =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\CommentTok{#to center title }
+
+  \KeywordTok{ggsave}\NormalTok{(}\DataTypeTok{plot =} \KeywordTok{last_plot}\NormalTok{(), }\DataTypeTok{filename =} \KeywordTok{paste0}\NormalTok{(survey,}\StringTok{"_Experimental_post_vs_pre.png"}\NormalTok{), }\DataTypeTok{width =} \DecValTok{16}\NormalTok{, }\DataTypeTok{height =} \DecValTok{9}\NormalTok{, }\DataTypeTok{units =} \StringTok{'in'}\NormalTok{)}
+  
+\NormalTok{\}}
+
+\KeywordTok{createBarPlot}\NormalTok{(}\StringTok{"FES"}\NormalTok{)}
+\KeywordTok{createBarPlot}\NormalTok{(}\StringTok{"AKS"}\NormalTok{)}
+\KeywordTok{createBarPlot}\NormalTok{(}\StringTok{"FACES"}\NormalTok{)}
+\KeywordTok{createBarPlot}\NormalTok{(}\StringTok{"FPPS"}\NormalTok{)}
+\KeywordTok{createBarPlot}\NormalTok{(}\StringTok{"SCS"}\NormalTok{)}
+\KeywordTok{createBarPlot}\NormalTok{(}\StringTok{"SEAS"}\NormalTok{)}
+
+\CommentTok{#line graph}
+\CommentTok{#category_Exp<-faces_tbl%>%filter(Survey=="FES", Group=="Experimental")}
+ \CommentTok{# ggplot(category_Exp, aes(x = `Participant #`,y = Total_Score, group = Time)) + }
+  \CommentTok{#  geom_line(aes(color = Time, linetype = Time)) +}
+   \CommentTok{# geom_point(aes(shape = Time, color = Time)) +}
+    \CommentTok{#scale_color_manual(values=c("orange", "blue")) +}
+    \CommentTok{#ggtitle("FES Scores - Experimental Group (Pre vs Post)") +}
+    \CommentTok{#theme(plot.title = element_text(hjust = 0.5)) #to center title }
+\CommentTok{#ggsave(filename = 'FES_Experimental_post_vs_pre.png', width = 16, height = 9, units = 'in')}
 \end{Highlighting}
 \end{Shaded}
-
-\includegraphics{DataVisuals_files/figure-latex/unnamed-chunk-1-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{ggsave}\NormalTok{(}\DataTypeTok{filename =} \StringTok{'FES_Experimental_post_vs_pre.png'}\NormalTok{, }\DataTypeTok{width =} \DecValTok{16}\NormalTok{, }\DataTypeTok{height =} \DecValTok{9}\NormalTok{, }\DataTypeTok{units =} \StringTok{'in'}\NormalTok{)}
-\KeywordTok{dev.off}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## null device 
-##           1
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{category_AKS<-faces_tbl}\OperatorTok{%>%}\KeywordTok{filter}\NormalTok{(Survey}\OperatorTok{==}\StringTok{"AKS"}\NormalTok{, Group}\OperatorTok{==}\StringTok{"Experimental"}\NormalTok{)}
-\KeywordTok{ggplot}\NormalTok{(category_AKS, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \StringTok{`}\DataTypeTok{Participant #}\StringTok{`}\NormalTok{,}\DataTypeTok{y =}\NormalTok{ Total_Score, }\DataTypeTok{group =}\NormalTok{ Time)) }\OperatorTok{+}\StringTok{ }
-\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{color =}\NormalTok{ Time, }\DataTypeTok{linetype =}\NormalTok{ Time)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{shape =}\NormalTok{ Time, }\DataTypeTok{color =}\NormalTok{ Time)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values=}\KeywordTok{c}\NormalTok{(}\StringTok{"orange"}\NormalTok{, }\StringTok{"blue"}\NormalTok{)) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"AKS Scores - Experimental Group (Pre vs Post)"}\NormalTok{) }\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{plot.title =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\CommentTok{#to center title }
-
-\KeywordTok{ggsave}\NormalTok{(}\DataTypeTok{filename =} \StringTok{'AKS_Experimental_post_vs_pre.png'}\NormalTok{, }\DataTypeTok{width =} \DecValTok{16}\NormalTok{, }\DataTypeTok{height =} \DecValTok{9}\NormalTok{, }\DataTypeTok{units =} \StringTok{'in'}\NormalTok{)}
-\KeywordTok{dev.off}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## null device 
-##           1
-\end{verbatim}
 
 \end{document}

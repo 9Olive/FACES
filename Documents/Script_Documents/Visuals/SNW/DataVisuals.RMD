@@ -21,25 +21,52 @@ faces_tbl$`Participant #`<- as.factor(faces_tbl$`Participant #`) #used factor in
 
 setwd("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Documents/Script_Documents/Visuals/SNW")
 
-category_Exp<-faces_tbl%>%filter(Survey=="FES", Group=="Experimental")
+createBarPlot <- function(survey) {
+  
+  category_Exp<-faces_tbl%>%filter(Survey==survey, Group=="Experimental")
+
+  #meanCalc<-category_Exp%>%group_by(Time)%>%summarise(Mean=mean(Total_Score))
+  #extractmeanPre<-meanCalc%>%filter(Time=="Pre")%>%select(Mean)
+  #meanPre<-extractmeanPre$Mean[1]
+  #extractmeanPost<-meanCalc%>%filter(Time=="Post")%>%select(Mean)
+  #meanPost<-extractmeanPost$Mean[1]
+
+  medianCalc<-category_Exp%>%group_by(Time)%>%summarise(Median=median(Total_Score))
+  extractmedianPre<-medianCalc%>%filter(Time=="Pre")%>%select(Median)
+  medianPre<-extractmedianPre$Median[1]
+  extractmedianPost<-medianCalc%>%filter(Time=="Post")%>%select(Median)
+  medianPost<-extractmedianPost$Median[1]
+
   ggplot(category_Exp, aes(x = `Participant #`,y = Total_Score, group = Time)) + 
-    geom_line(aes(color = Time, linetype = Time)) +
-    geom_point(aes(shape = Time, color = Time)) +
-    scale_color_manual(values=c("orange", "blue")) +
-    ggtitle("FES Scores - Experimental Group (Pre vs Post)") +
+    geom_col(position = "dodge",aes(fill=Time)) +
+    coord_flip() +
+    geom_hline(aes(yintercept = medianPre, linetype = "Median of Pre"), size=1, color = "green") +
+    geom_hline(aes(yintercept = medianPost, linetype = "Median of Post"), size=1, color = "orange") +
+    geom_text(aes(label =""), position = position_dodge(width = .75)) +
+    scale_linetype_manual(name = "Median Lines", values = c(2, 2), 
+                      guide = guide_legend(override.aes = list(color = c("orange", "green")))) +
+    ggtitle(paste(survey," Scores - Experimental Group (Pre vs Post)")) +
     theme(plot.title = element_text(hjust = 0.5)) #to center title 
-ggsave(filename = 'FES_Experimental_post_vs_pre.png', width = 16, height = 9, units = 'in')
-dev.off()
 
-category_AKS<-faces_tbl%>%filter(Survey=="AKS", Group=="Experimental")
-ggplot(category_AKS, aes(x = `Participant #`,y = Total_Score, group = Time)) + 
-  geom_line(aes(color = Time, linetype = Time)) +
-  geom_point(aes(shape = Time, color = Time)) +
-  scale_color_manual(values=c("orange", "blue")) +
-  ggtitle("AKS Scores - Experimental Group (Pre vs Post)") +
-  theme(plot.title = element_text(hjust = 0.5)) #to center title 
+  ggsave(plot = last_plot(), filename = paste0(survey,"_Experimental_post_vs_pre.png"), width = 16, height = 9, units = 'in')
+  
+}
 
-ggsave(filename = 'AKS_Experimental_post_vs_pre.png', width = 16, height = 9, units = 'in')
-dev.off()
+createBarPlot("FES")
+createBarPlot("AKS")
+createBarPlot("FACES")
+createBarPlot("FPPS")
+createBarPlot("SCS")
+createBarPlot("SEAS")
+
+#line graph
+#category_Exp<-faces_tbl%>%filter(Survey=="FES", Group=="Experimental")
+ # ggplot(category_Exp, aes(x = `Participant #`,y = Total_Score, group = Time)) + 
+  #  geom_line(aes(color = Time, linetype = Time)) +
+   # geom_point(aes(shape = Time, color = Time)) +
+    #scale_color_manual(values=c("orange", "blue")) +
+    #ggtitle("FES Scores - Experimental Group (Pre vs Post)") +
+    #theme(plot.title = element_text(hjust = 0.5)) #to center title 
+#ggsave(filename = 'FES_Experimental_post_vs_pre.png', width = 16, height = 9, units = 'in')
 ```
 
