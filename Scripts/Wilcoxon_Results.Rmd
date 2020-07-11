@@ -46,20 +46,18 @@ time_comparison <- bind_rows(third_comp, forth_comp) %>% mutate_all(as.character
   select(Time.x, Time.y, Group, Survey)
 ```
 
-## Experimental vs. Control Groups 
-
 The total of Pre and the total of Post intervention responses for the Control group is compared to the total of Pre and the total of Post intervention responses for the Experimental group. 
 
 ```{r echo=FALSE}
-knitr::kable(group_comparison)
+knitr::kable(group_comparison,
+             caption = 'Experimental vs. Control Groups ')
 ```
-
-## Pre vs Post within Experimental and Control Groups
 
 For each the Experimental and the Control group, the total of Pre intervention responses were compared to the total of Post intervention responses. 
 
 ```{r echo=FALSE}
-knitr::kable(time_comparison)
+knitr::kable(time_comparison,
+             caption = 'Pre vs Post within Experimental and Control Groups')
 ```
 
 \pagebreak 
@@ -89,11 +87,6 @@ time_wilcoxon  <- time_comparison %>%
 
 ## Experimental vs. Control Groups Results
 
-#### Pre Group Results
-
-  - $H_0$: There is no difference between the populations of *Pre Experimental* group and the *Pre Control* group.
-  - $H_A$: There is a difference between the populations of *Pre Experimental* group and the *Pre Control* group.
-
 ```{r echo=FALSE}
 knitr::kable(group_wilcoxon %>%
                filter(Time == 'Pre') %>%
@@ -104,13 +97,12 @@ knitr::kable(group_wilcoxon %>%
                mutate(p = round(p, 3),
                       ES = round(ES, 3)) %>%
                group_by(Survey) %>%
-               arrange(Survey))
+               arrange(Survey),
+             caption = 'Pre Group Results')
 ```
 
-#### Post Group Results
-
-  - $H_0$: There is no difference between the populations of *Post Experimental* group and the *Post Control* group.
-  - $H_A$: There is a difference between the populations of *Post Experimental* group and the *Post Control* group.
+  - $H_0$: There is no difference between the populations of *Pre Experimental* group and the *Pre Control* group.
+  - $H_A$: There is a difference between the populations of *Pre Experimental* group and the *Pre Control* group.
 
 ```{r  echo=FALSE}
 knitr::kable(group_wilcoxon %>%
@@ -122,21 +114,20 @@ knitr::kable(group_wilcoxon %>%
                mutate(p = round(p, 3),
                       ES = round(ES, 3)) %>%
                group_by(Survey) %>%
-               arrange(Survey))
+               arrange(Survey),
+             caption = 'Post Group Results')
 ```
 
+  - $H_0$: There is no difference between the populations of *Post Experimental* group and the *Post Control* group.
+  - $H_A$: There is a difference between the populations of *Post Experimental* group and the *Post Control* group.
+
 W  = Test Statistic from Wilcoxon Test  
-p  = P-Value of W 
+p  = P-Value of W  
 ES = Effect Size W
 
 \pagebreak
 
 ## Pre vs. Post Results
-
-#### Experimental Group Results
-
-  - $H_0$: There is no difference between the populations of *Pre Experimental* group and the *Post Experimental* group.
-  - $H_A$: There is a difference between the populations of *Pre Experimental* group and the *Post Experimental* group.
 
 ```{r echo=FALSE}
 knitr::kable(time_wilcoxon %>%
@@ -148,13 +139,12 @@ knitr::kable(time_wilcoxon %>%
                mutate(p = round(p, 3),
                       ES = round(ES, 3)) %>%
                group_by(Survey) %>%
-               arrange(Survey))
+               arrange(Survey),
+             caption = 'Experimental Group Results')
 ```
 
-#### Control Group Results
-
-  - $H_0$: There is no difference between the populations of *Pre Control* group and the *Post Control* group.
-  - $H_A$: There is a difference between the populations of *Pre Control* group and the *Post Control* group.
+  - $H_0$: There is no difference between the populations of *Pre Experimental* group and the *Post Experimental* group.
+  - $H_A$: There is a difference between the populations of *Pre Experimental* group and the *Post Experimental* group.
 
 ```{r echo=FALSE}
 knitr::kable(time_wilcoxon %>%
@@ -166,10 +156,14 @@ knitr::kable(time_wilcoxon %>%
                mutate(p = round(p, 3),
                       ES = round(ES, 3)) %>%
                group_by(Survey) %>%
-               arrange(Survey))
+               arrange(Survey),
+             caption = 'Control Group Results')
 ```
 
 
+  - $H_0$: There is no difference between the populations of *Pre Control* group and the *Post Control* group.
+  - $H_A$: There is a difference between the populations of *Pre Control* group and the *Post Control* group.
+
 W  = Test Statistic from Wilcoxon Test  
-p  = P-Value of W 
+p  = P-Value of W   
 ES = Effect Size W
