@@ -1,6 +1,5 @@
 ---
 title: "Bootstrap"
-output: html_notebook
 ---
 
 ```{r}
@@ -21,13 +20,28 @@ faces <- read_csv('../Data/cleaned_FACES_data.csv', col_types = c('ffffdf'))
 We pull from our samples for non-parameteric bootstrap. Typically, we calculate some parameter. I calculate the mean for 50,000 participants :)
 
 ```{r}
-m <- seq(1:100)
-power <- data.frame('FACES' = numeric(100), 'AKS' = numeric(100), 'FES' = numeric(100),
-                          'SCS' = numeric(100), 'FPPS' = numeric(100), 'SEAS' = numeric(100))
+#how many different n to test
+m <- seq(from=5, to=60, by=5)
+#power dataframe for non-parametric
+power_norm <- data.frame('FACES' = numeric(length(m)), 'AKS' = numeric(length(m)), 
+                         'FES' = numeric(length(m)), 'SCS' = numeric(length(m)), 
+                         'FPPS' = numeric(length(m)), 'SEAS' = numeric(length(m)))
 
+
+#power dataframe for parametric group
+power_norm <- data.frame('FACES' = numeric(length(m)), 'AKS' = numeric(length(m)), 
+                         'FES' = numeric(length(m)), 'SCS' = numeric(length(m)), 
+                         'FPPS' = numeric(length(m)), 'SEAS' = numeric(length(m)))
+```
+
+
+```{r}
 for (n in m) {
-  B <- 5e4
+  # Number of times to bootstrap
+  B <- 1e4
+  #survey categories
   surveys <- as.character(unique(faces$Survey))
+  #dataframe to hold simulation results
   pre.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
                           'SCS' = numeric(B), 'FPPS' = numeric(B), 'SEAS' = numeric(B))
   post.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
@@ -50,52 +64,53 @@ for (n in m) {
       summarise(Total = sum(Response)) %>%
       ungroup()
   
-  
     # Vector to store means
     m1 <- numeric()
     
-    #pre sample mean and sd
-    pre_mean <- mean(sample_faces_pre$Total)
-    pre_sd <- sd(sample_faces_pre$Total)
-    
     for (i in 1:B) {
-      dist <- rnorm(n, mean=pre_mean, sd=pre_sd)
+      dist <- sample(sample_faces_pre$Total, size = n, replace = T)
       m1[i] <- mean(dist)
     }
     pre.exp[surveys[j]] <- m1
     
+    #vector to store post means
     m2 <- numeric()
     
-    #post sample mean and sd
-    post_mean <- mean(sample_faces_post$Total)
-    post_sd <- sd(sample_faces_post$Total)
-    
     for (i in 1:B) {
-      dist <- rnorm(n, mean=post_mean, sd=post_sd)
+      dist <- sample(sample_faces_post$Total, size = n, replace = T)
       m2[i] <- mean(dist)
     }
+    
     post.exp[surveys[j]] <- m2
     
     post <- post.exp[,j] > pre.exp[,j]
     postSum <- sum(post)
     
-    power[n, j] <- postSum / B
-  
+    power_data[n, j] <- postSum / B
   }
 }
 ```
 
-
 ```{r}
-
+  power <- cbind(power_data, power_norm)
+  colNames <- c('FACESd', 'AKSd', 'FESd', 'SCSd', 'FPPSd', 'SEASd',
+                'FACESn', 'AKSn', 'FESn', 'SCSn', 'FPPSn', 'SEASn')
+  colnames(power) <- colNames
+  power$indexes <- seq(1:60)
+  
+  ggplot(data=power, aes(x=indexes))+
+      geom_line(aes(y=FACESd))+
+      geom_line(aes(y=FACESn), linetype='twodash')
+  lines(x=m, y=power[,7], col=1, lty=2)
 
 ```
+
 
 Comparing Pre and Post mean distributions:
 
 ```{r}
-dist <- tibble(Time = c(rep('Pre', length(pre.exp$FACES)), rep('Post', length(post.exp$FACES))),
-               Dist = c(pre.exp$FACES, post.exp$FACES)) %>%
+dist <- tibble(Time = c(rep('Pre', length(m1)), rep('Post', length(m2))),
+               Dist = c(m1, m2)) %>%
   mutate(Time = factor(Time))
 dist %>%
   ggplot() +

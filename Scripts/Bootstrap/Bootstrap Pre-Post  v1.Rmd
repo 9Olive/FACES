@@ -1,0 +1,157 @@
+---
+title: "Bootstrap"
+---
+
+```{r}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+```{r}
+faces <- read_csv('../../Data/cleaned_FACES_data.csv', col_types = c('ffffdf'))
+```
+
+## Bootstrap:
+
+1. Filter data down that we want to bootstrap (not really apart of the bootstrap process)
+
+2. Non-parameteric Bootstrap:
+
+We pull from our samples for non-parameteric bootstrap. Typically, we calculate some parameter. I calculate the mean for 50,000 participants :)
+
+```{r}
+#how many different n to test
+m <- seq(from=5, to=60, by=5)
+#power dataframe for non-parametric
+power_data <- data.frame('FACES' = numeric(length(m)), 'AKS' = numeric(length(m)), 
+                         'FES' = numeric(length(m)), 'SCS' = numeric(length(m)), 
+                         'FPPS' = numeric(length(m)), 'SEAS' = numeric(length(m)))
+
+
+#power dataframe for parametric group
+power_norm <- data.frame('FACES' = numeric(length(m)), 'AKS' = numeric(length(m)), 
+                         'FES' = numeric(length(m)), 'SCS' = numeric(length(m)), 
+                         'FPPS' = numeric(length(m)), 'SEAS' = numeric(length(m)))
+```
+
+
+```{r}
+for (n in m) {
+  # Number of times to bootstrap
+  B <- 1e4
+  #survey categories
+  surveys <- as.character(unique(faces$Survey))
+  #dataframe to hold simulation results
+  pre.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
+                          'SCS' = numeric(B), 'FPPS' = numeric(B), 'SEAS' = numeric(B))
+  post.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
+                          'SCS' = numeric(B), 'FPPS' = numeric(B), 'SEAS' = numeric(B))
+  
+  for (j in 1:6) {
+    sample_faces_pre <- faces %>%
+      filter(Time == 'Pre', 
+             Group == 'Experimental',
+             Survey == surveys[j]) %>%
+      group_by(`Participant #`) %>%
+      summarise(Total = sum(Response)) %>%
+      ungroup()
+    
+    sample_faces_post <- faces %>%
+      filter(Time == 'Post', 
+             Group == 'Experimental',
+             Survey == surveys[j]) %>%
+      group_by(`Participant #`) %>%
+      summarise(Total = sum(Response)) %>%
+      ungroup()
+  
+    # Vector to store means
+    m1d <- numeric()
+    m1n <- numeric()
+    
+    #pre sample mean and sd
+    pre_mean <- mean(sample_faces_pre$Total)
+    pre_sd <- sd(sample_faces_pre$Total)
+    
+    for (i in 1:B) {
+      dist <- sample(sample_faces_pre$Total, size = n, replace = T)
+      m1d[i] <- mean(dist)
+      dist <- rnorm(n, mean=pre_mean, sd=pre_sd)
+      m1n[i] <- mean(dist)
+    }
+    
+    #vector to store post means
+    m2d <- numeric()
+    m2n <- numeric()
+    
+    #post sample mean and sd
+    post_mean <- mean(sample_faces_post$Total)
+    post_sd <- sd(sample_faces_post$Total)
+    
+    for (i in 1:B) {
+      dist <- sample(sample_faces_post$Total, size = n, replace = T)
+      m2d[i] <- mean(dist)
+      dist <- rnorm(n, mean=post_mean, sd=post_sd)
+      m2n[i] <- mean(dist)
+    }
+    
+    power_data[n / 5, j] <- mean(m2d > m1d)
+    power_norm[n / 5, j] <- mean(m2n > m1n)
+  }
+}
+```
+
+```{r}
+  #combine the data frames and change the column names
+  power <- cbind(power_data, power_norm)
+  colNames <- c('FACESd', 'AKSd', 'FESd', 'SCSd', 'FPPSd', 'SEASd',
+                'FACESn', 'AKSn', 'FESn', 'SCSn', 'FPPSn', 'SEASn')
+  colnames(power) <- colNames
+  #add indexing for the graph
+  power$indexes <- m
+  
+  #colors for the graph
+  colors <- c('black', 'red', 'green', 'blue', 'purple', 'orange')
+  
+
+    ggplot(data=power, aes(x=indexes))+
+      geom_line(aes(y=FACESd), size=1)+
+      geom_line(aes(y=FACESn), linetype='longdash', size=1)+
+      geom_line(aes(y=AKSd), color='red', size=1)+
+      geom_line(aes(y=AKSn), linetype='longdash', color='red', size=1)+
+      geom_line(aes(y=FESd), color='green', size=1)+
+      geom_line(aes(y=FESn), linetype='longdash', color='green', size=1)+
+      geom_line(aes(y=SCSd), color='blue', size=1)+
+      geom_line(aes(y=SCSn), linetype='longdash', color='blue', size=1)+
+      geom_line(aes(y=FPPSd), color='purple', size=1)+
+      geom_line(aes(y=FPPSn), linetype='longdash', color='purple', size=1)+
+      geom_line(aes(y=SEASd), color='orange', size=1)+
+      geom_line(aes(y=SEASn), linetype='longdash', color='orange', size=1)
+  
+power %>%
+  select(ExpN, ends_with('d')) %>%
+  pivot_longer(-ExpN, names_to = 'Survey', values_to = 'Proportion True') %>%
+  mutate(Survey = str_replace(Survey, 'd', ''),
+         Survey = factor(Survey)) %>%
+  ggplot(aes(x = ExpN)) +
+  geom_line(aes(y = `Proportion True`, color = Survey),
+            size = 1, alpha = .75) +
+  facet_wrap(Survey ~., scales = 'free_y') +
+  labs(x = "Experimental Group Sample Size",
+       title = "Power Calculations",
+       caption = 'Control Group Sample Size = 60 - Experimental Group Sample Size') +
+  theme(text = element_text(size = 14))
+```
+
+
+Comparing Pre and Post mean distributions:
+
+```{r}
+dist <- tibble(Time = c(rep('Pre', length(m1)), rep('Post', length(m2))),
+               Dist = c(m1, m2)) %>%
+  mutate(Time = factor(Time))
+dist %>%
+  ggplot() +
+  geom_density(aes(x = Dist, fill = Time), alpha = 0.7)
+```
+
