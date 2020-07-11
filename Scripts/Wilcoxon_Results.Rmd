@@ -62,6 +62,8 @@ For each the Experimental and the Control group, the total of Pre intervention r
 knitr::kable(time_comparison)
 ```
 
+\pagebreak 
+
 # Results
 
 ```{r include=FALSE}
@@ -87,30 +89,87 @@ time_wilcoxon  <- time_comparison %>%
 
 ## Experimental vs. Control Groups Results
 
-  - $H_0$: There is no difference between the distribution of {*Pre*, *Post*} *Experimental* group survey responses and the distribution {*Pre*, *Post*} *Control* group survey responses.
-  - $H_A$: The distribution of the {*Pre*, *Post*} *Experimental* group survey responses $\neq$ the distirbution of the {*Pre*, *Post*} *Control* group survey responses.
+#### Pre Group Results
+
+  - $H_0$: There is no difference between the populations of *Pre Experimental* group and the *Pre Control* group.
+  - $H_A$: There is a difference between the populations of *Pre Experimental* group and the *Pre Control* group.
 
 ```{r echo=FALSE}
-knitr::kable(select(group_wilcoxon, Time, Survey, 
-                    Group.x, Group.y, 
-                    `Test Statistic` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
+knitr::kable(group_wilcoxon %>%
+               filter(Time == 'Pre') %>%
+               select(Time, Survey, 
+                    `Group A` = Group.x, 
+                    `Group B` = Group.y, 
+                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
+               mutate(p = round(p, 3),
+                      ES = round(ES, 3)) %>%
                group_by(Survey) %>%
-               arrange(Survey, p, Time))
+               arrange(Survey))
 ```
+
+#### Post Group Results
+
+  - $H_0$: There is no difference between the populations of *Post Experimental* group and the *Post Control* group.
+  - $H_A$: There is a difference between the populations of *Post Experimental* group and the *Post Control* group.
+
+```{r  echo=FALSE}
+knitr::kable(group_wilcoxon %>%
+               filter(Time == 'Post') %>%
+               select(Time, Survey, 
+                    `Group A` = Group.x, 
+                    `Group B` = Group.y, 
+                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
+               mutate(p = round(p, 3),
+                      ES = round(ES, 3)) %>%
+               group_by(Survey) %>%
+               arrange(Survey))
+```
+
+W  = Test Statistic from Wilcoxon Test  
+p  = P-Value of W 
+ES = Effect Size W
+
+\pagebreak
 
 ## Pre vs. Post Results
 
-  - $H_0$: There is no difference between the distribution of {*Experimental*, *Control*} *Pre* survey responses and the distribution of {*Experimental*, *Control*} *Post* survey responses.
-  - $H_A$: The mean of the distribution of the {*Pre*, *Post*} *Pre* survey responses $<$ the mean of the distirbution of the {*Pre*, *Post*} *Post* survey responses.
+#### Experimental Group Results
+
+  - $H_0$: There is no difference between the populations of *Pre Experimental* group and the *Post Experimental* group.
+  - $H_A$: There is a difference between the populations of *Pre Experimental* group and the *Post Experimental* group.
 
 ```{r echo=FALSE}
-knitr::kable(select(time_wilcoxon, Group, Survey, 
-                    Time.x, Time.y, 
-                    `Test Statistic` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
+knitr::kable(time_wilcoxon %>%
+               filter(Group == "Experimental") %>%
+               select(Group, Survey, 
+                    `Pre` = Time.x, 
+                    `Post` = Time.y, 
+                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
+               mutate(p = round(p, 3),
+                      ES = round(ES, 3)) %>%
                group_by(Survey) %>%
-               arrange(Survey, p, Group))
+               arrange(Survey))
 ```
 
-Test Statistic from Wilcoxon Test  
-p  = P-Value  
-ES = Effect Size
+#### Control Group Results
+
+  - $H_0$: There is no difference between the populations of *Pre Control* group and the *Post Control* group.
+  - $H_A$: There is a difference between the populations of *Pre Control* group and the *Post Control* group.
+
+```{r echo=FALSE}
+knitr::kable(time_wilcoxon %>%
+               filter(Group == "Control") %>%
+               select(Group, Survey, 
+                    `Pre` = Time.x, 
+                    `Post` = Time.y, 
+                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
+               mutate(p = round(p, 3),
+                      ES = round(ES, 3)) %>%
+               group_by(Survey) %>%
+               arrange(Survey))
+```
+
+
+W  = Test Statistic from Wilcoxon Test  
+p  = P-Value of W 
+ES = Effect Size W
