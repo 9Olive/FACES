@@ -1,0 +1,99 @@
+---
+title: "Bootstrap"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+faces <- read_csv('../Data/cleaned_FACES_data.csv', col_types = c('ffffdf'))
+```
+
+## Bootstrap:
+
+1. Filter data down that we want to bootstrap (not really apart of the bootstrap process)
+
+2. Non-parameteric Bootstrap:
+
+We pull from our samples for non-parameteric bootstrap. Typically, we calculate some parameter. I calculate the mean for 50,000 participants :)
+
+```{r}
+
+surveys <- as.character(unique(faces$Survey))
+pre.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
+                        'SCS' = numeric(B), 'FPPS' = numeric(B), 'SEAS' = numeric(B))
+post.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
+                        'SCS' = numeric(B), 'FPPS' = numeric(B), 'SEAS' = numeric(B))
+
+for (j in 1:6) {
+  sample_faces_pre <- faces %>%
+    filter(Time == 'Pre', 
+           Group == 'Control',
+           Survey == surveys[j]) %>%
+    group_by(`Participant #`) %>%
+    summarise(Total = sum(Response)) %>%
+    ungroup()
+  
+  sample_faces_post <- faces %>%
+    filter(Time == 'Post', 
+           Group == 'Control',
+           Survey == surveys[j]) %>%
+    group_by(`Participant #`) %>%
+    summarise(Total = sum(Response)) %>%
+    ungroup()
+
+  
+  # Number of times to bootstrap
+  B <- 5e4
+  
+  # Number of samples to pull
+  n <- 60
+  
+  # Vector to store means
+  m1 <- numeric()
+  
+  for (i in 1:B) {
+    dist <- sample(sample_faces_pre$Total, size = n, replace = T)
+    m1[i] <- mean(dist)
+  }
+  pre.exp[surveys[j]] <- m1
+  
+  ## Performing it again for the post score
+  B <- 5e4
+  n <- 10
+  
+  m2 <- numeric()
+  
+  for (i in 1:B) {
+    dist <- sample(sample_faces_post$Total, size = n, replace = T)
+    m2[i] <- mean(dist)
+  }
+  post.exp[surveys[j]] <- m2
+  
+
+}
+```
+
+
+```{r}
+post <- post.exp > pre.exp
+
+postSum <- colSums(post)
+power <- postSum / B
+
+```
+
+Comparing Pre and Post mean distributions:
+
+```{r}
+dist <- tibble(Time = c(rep('Pre', length(pre.exp$FACES)), rep('Post', length(post.exp$FACES))),
+               Dist = c(pre.exp$FACES, post.exp$FACES)) %>%
+  mutate(Time = factor(Time))
+dist %>%
+  ggplot() +
+  geom_density(aes(x = Dist, fill = Time), alpha = 0.7)
+```
+
