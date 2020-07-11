@@ -24,7 +24,7 @@ We pull from our samples for non-parameteric bootstrap. Typically, we calculate 
 #how many different n to test
 m <- seq(from=5, to=60, by=5)
 #power dataframe for non-parametric
-power_norm <- data.frame('FACES' = numeric(length(m)), 'AKS' = numeric(length(m)), 
+power_data <- data.frame('FACES' = numeric(length(m)), 'AKS' = numeric(length(m)), 
                          'FES' = numeric(length(m)), 'SCS' = numeric(length(m)), 
                          'FPPS' = numeric(length(m)), 'SEAS' = numeric(length(m)))
 
@@ -66,43 +66,68 @@ for (n in m) {
       ungroup()
   
     # Vector to store means
-    m1 <- numeric()
+    m1d <- numeric()
+    m1n <- numeric()
+    
+    #pre sample mean and sd
+    pre_mean <- mean(sample_faces_pre$Total)
+    pre_sd <- sd(sample_faces_pre$Total)
     
     for (i in 1:B) {
       dist <- sample(sample_faces_pre$Total, size = n, replace = T)
-      m1[i] <- mean(dist)
+      m1d[i] <- mean(dist)
+      dist <- rnorm(n, mean=pre_mean, sd=pre_sd)
+      m1n[i] <- mean(dist)
     }
-    pre.exp[surveys[j]] <- m1
     
     #vector to store post means
-    m2 <- numeric()
+    m2d <- numeric()
+    m2n <- numeric()
+    
+    #post sample mean and sd
+    post_mean <- mean(sample_faces_post$Total)
+    post_sd <- sd(sample_faces_post$Total)
     
     for (i in 1:B) {
       dist <- sample(sample_faces_post$Total, size = n, replace = T)
-      m2[i] <- mean(dist)
+      m2d[i] <- mean(dist)
+      dist <- rnorm(n, mean=post_mean, sd=post_sd)
+      m2n[i] <- mean(dist)
     }
     
-    post.exp[surveys[j]] <- m2
-    
-    post <- post.exp[,j] > pre.exp[,j]
-    postSum <- sum(post)
-    
-    power_data[n, j] <- postSum / B
+    power_data[n / 5, j] <- mean(m2d > m1d)
+    power_norm[n / 5, j] <- mean(m2n > m1n)
   }
 }
 ```
 
 ```{r}
+  #combine the data frames and change the column names
   power <- cbind(power_data, power_norm)
   colNames <- c('FACESd', 'AKSd', 'FESd', 'SCSd', 'FPPSd', 'SEASd',
                 'FACESn', 'AKSn', 'FESn', 'SCSn', 'FPPSn', 'SEASn')
   colnames(power) <- colNames
-  power$indexes <- seq(1:60)
+  #add indexing for the graph
+  power$indexes <- m
   
-  ggplot(data=power, aes(x=indexes))+
-      geom_line(aes(y=FACESd))+
-      geom_line(aes(y=FACESn), linetype='twodash')
-  lines(x=m, y=power[,7], col=1, lty=2)
+  #colors for the graph
+  colors <- c('black', 'red', 'green', 'blue', 'purple', 'orange')
+  
+
+    ggplot(data=power, aes(x=indexes))+
+      geom_line(aes(y=FACESd), size=1)+
+      geom_line(aes(y=FACESn), linetype='longdash', size=1)+
+      geom_line(aes(y=AKSd), color='red', size=1)+
+      geom_line(aes(y=AKSn), linetype='longdash', color='red', size=1)+
+      geom_line(aes(y=FESd), color='green', size=1)+
+      geom_line(aes(y=FESn), linetype='longdash', color='green', size=1)+
+      geom_line(aes(y=SCSd), color='blue', size=1)+
+      geom_line(aes(y=SCSn), linetype='longdash', color='blue', size=1)+
+      geom_line(aes(y=FPPSd), color='purple', size=1)+
+      geom_line(aes(y=FPPSn), linetype='longdash', color='purple', size=1)+
+      geom_line(aes(y=SEASd), color='orange', size=1)+
+      geom_line(aes(y=SEASn), linetype='longdash', color='orange', size=1)
+  
 
 ```
 
