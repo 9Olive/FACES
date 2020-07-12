@@ -111,24 +111,6 @@ for (n in m) {
   power$ExpN <- m
   power$ControlN <- seq(from=55, to=5, by=-5)
   
-  #colors for the graph
-  colors <- c('black', 'red', 'green', 'blue', 'purple', 'orange')
-  
-
-    ggplot(data=power, aes(x=ExpN))+
-      geom_line(aes(y=FACESd), size=1)+
-      # geom_line(aes(y=FACESn), linetype='longdash', size=1)+
-      geom_line(aes(y=AKSd), color='red', size=1)+
-      # geom_line(aes(y=AKSn), linetype='longdash', color='red', size=1)+
-      geom_line(aes(y=FESd), color='green', size=1)+
-      # geom_line(aes(y=FESn), linetype='longdash', color='green', size=1)+
-      geom_line(aes(y=SCSd), color='blue', size=1)+
-      # geom_line(aes(y=SCSn), linetype='longdash', color='blue', size=1)+
-      geom_line(aes(y=FPPSd), color='purple', size=1)+
-      # geom_line(aes(y=FPPSn), linetype='longdash', color='purple', size=1)+
-      geom_line(aes(y=SEASd), color='orange', size=1)
-#      geom_line(aes(y=SEASn), linetype='longdash', color='orange', size=1)
-  
 power %>%
   select(ExpN, ends_with('d')) %>%
   pivot_longer(-ExpN, names_to = 'Survey', values_to = 'Proportion True') %>%

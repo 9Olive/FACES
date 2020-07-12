@@ -1,0 +1,75 @@
+---
+title: "Analyze Distributions"
+author: "James Carr"
+date: "7/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+```{r}
+#Import file of clean data
+faces <- read_csv('../../Data/cleaned_FACES_data.csv', col_types = c('ffffdf'))
+
+#Gruup data into sums
+faces_sum <- faces %>% 
+  group_by(Group, `Participant #`, Time, Survey) %>%
+  summarise(resp = sum(Response)) %>%
+  ungroup()
+
+```
+
+Look at distributions of scores in the Pre groups
+```{r}
+#faces pre
+faces_pre <- faces_sum %>% filter(Time == 'Pre')
+
+#Plot histogram of pre sums by survey
+faces_pre %>%
+  ggplot(aes(x = resp)) +
+  geom_histogram(aes(color = Survey),
+            size = 1, alpha = .75) +
+  facet_wrap(Survey ~., scales = 'free_y') +
+  labs(x = "Survey Reponse Sums",
+       title = "Pre-Intervention Distributions") +
+  theme(text = element_text(size = 14))
+
+```
+
+Look at distributions of differences between pre-post experimental
+This is important because this is really what we are testing
+```{r}
+#Pivote wider so that we can get differences between pre-post
+wider <- faces_sum %>% 
+  pivot_wider(id_cols = c('Participant #', 'Survey', 'Group'), 
+              names_from = contains(c('Time')),
+              values_from = c(resp)) %>%
+              filter(Group == 'Experimental')
+
+wider$diff <- wider$Post - wider$Pre
+
+
+wider %>%
+  ggplot(aes(x = scale(diff))) +
+  geom_histogram(aes(color='red'),
+                size = 1, alpha = .75, bins = 15) +
+  theme(legend.position = "none") +
+  labs(x = "Standardized Differences",
+       title = "Pre-Intervention Distributions") +
+  theme(text = element_text(size = 14))
+
+```
+
+qq-line of standardized differences
+```{r}
+wider %>%
+  ggplot(aes(sample = scale(diff))) +
+  stat_qq(aes(color='darkred')) + stat_qq_line(aes(color='darkred')) +
+  theme(legend.position = "none") +
+  labs(x = "Standardized Differences",
+       title = "QQ Plot of Standardized Differnces", y = '')
+
+```
