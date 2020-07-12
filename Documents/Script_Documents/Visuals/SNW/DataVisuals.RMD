@@ -9,8 +9,8 @@ output: pdf_document
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 theme_set(theme_bw())
-# faces <- read_csv("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Data/cleaned_FACES_data.csv")
-faces <- read_csv("../../../../Data/cleaned_FACES_data.csv")
+faces <- read_csv("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Data/cleaned_FACES_data.csv")
+#faces <- read_csv("../../../../Data/cleaned_FACES_data.csv")
 faces_tbl <- faces %>% 
   mutate(Survey = factor(Survey)) %>%
   group_by(`Participant #`, Time, Group, Survey) %>%
@@ -20,7 +20,7 @@ faces_tbl <- faces %>%
 faces_tbl$`Participant #`<- as.factor(faces_tbl$`Participant #`) #used factor instead of character to preserve order 
 
 
-# setwd("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Documents/Script_Documents/Visuals/SNW")
+setwd("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Documents/Script_Documents/Visuals/SNW")
 
 createBarPlot <- function(survey) {
   
@@ -50,7 +50,7 @@ createBarPlot <- function(survey) {
     scale_y_continuous(breaks = scales::pretty_breaks(10)) + 
     theme(plot.title = element_text(hjust = 0.5)) #to center title 
 
-  ggsave(plot = last_plot(), filename = paste0(survey,"_Experimental_post_vs_pre.png"), width = 16, height = 9, units = 'in')
+  ggsave(plot = last_plot(), filename = paste0(survey,"_Experimental_post_vs_pre.png"), width = 6, height = 4, units = 'in')
   
 }
 

@@ -110,8 +110,9 @@
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{theme_set}\NormalTok{(}\KeywordTok{theme_bw}\NormalTok{())}
 \NormalTok{faces <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Data/cleaned_FACES_data.csv"}\NormalTok{)}
-
+\CommentTok{#faces <- read_csv("../../../../Data/cleaned_FACES_data.csv")}
 \NormalTok{faces_tbl <-}\StringTok{ }\NormalTok{faces }\OperatorTok{%>%}\StringTok{ }
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Survey =} \KeywordTok{factor}\NormalTok{(Survey)) }\OperatorTok{%>%}
 \StringTok{  }\KeywordTok{group_by}\NormalTok{(}\StringTok{`}\DataTypeTok{Participant #}\StringTok{`}\NormalTok{, Time, Group, Survey) }\OperatorTok{%>%}
@@ -139,10 +140,8 @@
 \NormalTok{  extractmedianPost<-medianCalc}\OperatorTok{%>%}\KeywordTok{filter}\NormalTok{(Time}\OperatorTok{==}\StringTok{"Post"}\NormalTok{)}\OperatorTok{%>%}\KeywordTok{select}\NormalTok{(Median)}
 \NormalTok{  medianPost<-extractmedianPost}\OperatorTok{$}\NormalTok{Median[}\DecValTok{1}\NormalTok{]}
 
-  \CommentTok{#category_Exp<-cbind(category_Exp,meanPre=meanPreValues,meanPost=meanPostValues)}
-
   \KeywordTok{ggplot}\NormalTok{(category_Exp, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \StringTok{`}\DataTypeTok{Participant #}\StringTok{`}\NormalTok{,}\DataTypeTok{y =}\NormalTok{ Total_Score, }\DataTypeTok{group =}\NormalTok{ Time)) }\OperatorTok{+}\StringTok{ }
-\StringTok{    }\KeywordTok{geom_col}\NormalTok{(}\DataTypeTok{position =} \StringTok{"dodge"}\NormalTok{,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{fill=}\NormalTok{Time)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_col}\NormalTok{(}\DataTypeTok{position =} \StringTok{"dodge"}\NormalTok{,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{fill=}\NormalTok{Time), }\DataTypeTok{color =} \StringTok{'black'}\NormalTok{) }\OperatorTok{+}
 \StringTok{    }\KeywordTok{coord_flip}\NormalTok{() }\OperatorTok{+}
 \StringTok{    }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept =}\NormalTok{ medianPre, }\DataTypeTok{linetype =} \StringTok{"Median of Pre"}\NormalTok{), }\DataTypeTok{size=}\DecValTok{1}\NormalTok{, }\DataTypeTok{color =} \StringTok{"green"}\NormalTok{) }\OperatorTok{+}
 \StringTok{    }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept =}\NormalTok{ medianPost, }\DataTypeTok{linetype =} \StringTok{"Median of Post"}\NormalTok{), }\DataTypeTok{size=}\DecValTok{1}\NormalTok{, }\DataTypeTok{color =} \StringTok{"orange"}\NormalTok{) }\OperatorTok{+}
@@ -150,9 +149,10 @@
 \StringTok{    }\KeywordTok{scale_linetype_manual}\NormalTok{(}\DataTypeTok{name =} \StringTok{"Median Lines"}\NormalTok{, }\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{), }
                       \DataTypeTok{guide =} \KeywordTok{guide_legend}\NormalTok{(}\DataTypeTok{override.aes =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{color =} \KeywordTok{c}\NormalTok{(}\StringTok{"orange"}\NormalTok{, }\StringTok{"green"}\NormalTok{)))) }\OperatorTok{+}
 \StringTok{    }\KeywordTok{ggtitle}\NormalTok{(}\KeywordTok{paste}\NormalTok{(survey,}\StringTok{" Scores - Experimental Group (Pre vs Post)"}\NormalTok{)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{breaks =}\NormalTok{ scales}\OperatorTok{::}\KeywordTok{pretty_breaks}\NormalTok{(}\DecValTok{10}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
 \StringTok{    }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{plot.title =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\CommentTok{#to center title }
 
-  \KeywordTok{ggsave}\NormalTok{(}\DataTypeTok{plot =} \KeywordTok{last_plot}\NormalTok{(), }\DataTypeTok{filename =} \KeywordTok{paste0}\NormalTok{(survey,}\StringTok{"_Experimental_post_vs_pre.png"}\NormalTok{), }\DataTypeTok{width =} \DecValTok{16}\NormalTok{, }\DataTypeTok{height =} \DecValTok{9}\NormalTok{, }\DataTypeTok{units =} \StringTok{'in'}\NormalTok{)}
+  \KeywordTok{ggsave}\NormalTok{(}\DataTypeTok{plot =} \KeywordTok{last_plot}\NormalTok{(), }\DataTypeTok{filename =} \KeywordTok{paste0}\NormalTok{(survey,}\StringTok{"_Experimental_post_vs_pre.png"}\NormalTok{), }\DataTypeTok{width =} \DecValTok{6}\NormalTok{, }\DataTypeTok{height =} \DecValTok{4}\NormalTok{, }\DataTypeTok{units =} \StringTok{'in'}\NormalTok{)}
   
 \NormalTok{\}}
 
