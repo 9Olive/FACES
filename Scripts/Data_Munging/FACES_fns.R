@@ -10,6 +10,7 @@ summarizes_faces_1 <- function(data) {
   
   data %>% 
     
+
     # Deselect participant id
     select(-`Participant #`) %>%
     group_by(Time, Group) %>%
@@ -123,6 +124,9 @@ faces_wilcox <- function(time1, group1, time2, group2, survey, ...) {
   # Filter to data we need for comparison
   faces_ <- read_csv('../Data/cleaned_FACES_data.csv',
                      col_types = c('ffffdf')) %>%
+    # temporary addition: Removing outlier participant 5
+    filter(`Participant #` != 5) %>%
+    
     group_by(Group, `Participant #`, Time, Survey) %>%
     summarise(tot_resp = sum(Response)) %>%
     ungroup() %>%
