@@ -70,6 +70,6 @@ wider %>%
   stat_qq(aes(color='darkred')) + stat_qq_line(aes(color='darkred')) +
   theme(legend.position = "none") +
   labs(x = "Standardized Differences",
-       title = "QQ Plot of Standardized Differnces", y = '')
+       title = "QQ Plot of Standardized Differences", y = '')
 
 ```
