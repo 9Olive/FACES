@@ -120,10 +120,13 @@ power %>%
   geom_line(aes(y = `Proportion True`, color = Survey),
             size = 1, alpha = .75) +
   facet_wrap(Survey ~., scales = 'free_y') +
+  scale_y_continuous(labels = scales::number_format(scale = 1)) +
   labs(x = "Experimental Group Sample Size",
-       title = "Power Calculations",
+       title = "Power Calculations - Post Survey Results: Experimental vs Control",
        caption = 'Control Group Sample Size = 60 - Experimental Group Sample Size') +
-  theme(text = element_text(size = 14))
+  theme(text = element_text(size = 26))
+
+ggsave('Post Survey Power Calcs.png', width = 16, height = 9, units = 'in')
 ```
 
 

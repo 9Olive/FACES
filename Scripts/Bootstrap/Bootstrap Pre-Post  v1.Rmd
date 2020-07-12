@@ -122,8 +122,10 @@ for (n in m) {
               size = 1, alpha = .75) +
     facet_wrap(Survey ~., scales = 'free_y') +
     labs(x = "Experimental Group Sample Size",
-         title = "Power Calculations") +
-    theme(text = element_text(size = 14))
+         title = "Power Calculations for Pre versus Post Experimental Group") +
+    theme(text = element_text(size = 26))
+
+  ggsave('Pre vs Post Experimental Power Calcs.png', width = 16, height = 9, units = 'in')
 ```
 
 
