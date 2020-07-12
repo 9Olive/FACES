@@ -53,11 +53,6 @@ obs <- faces %>%
   pull(obs) %>%
   sum()
 
-missing_obs <- missing_sum %>%
-  pull(missing_data) %>%
-  sum()
-
-missing_obs / obs;missing_obs;obs
 ```
 
 ### Splitting the missing data  
