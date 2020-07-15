@@ -93,9 +93,13 @@ knitr::kable(group_wilcoxon %>%
                select(Time, Survey, 
                     `Group A` = Group.x, 
                     `Group B` = Group.y, 
-                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
-               mutate(p = round(p, 3),
-                      ES = round(ES, 3)) %>%
+                    `W` = test_statistic, 
+                    `p` = p.value#, 
+                    #`ES` = effect_size
+                    ) %>%
+               mutate(p = round(p, 3)#,
+                      #ES = round(ES, 3)
+                      ) %>%
                group_by(Survey) %>%
                arrange(Survey),
              caption = 'Pre Group Results')
@@ -110,9 +114,13 @@ knitr::kable(group_wilcoxon %>%
                select(Time, Survey, 
                     `Group A` = Group.x, 
                     `Group B` = Group.y, 
-                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
-               mutate(p = round(p, 3),
-                      ES = round(ES, 3)) %>%
+                    `W` = test_statistic , 
+                    `p` = p.value#, 
+                    #`ES` = effect_size
+                    ) %>%
+               mutate(p = round(p, 3)#,
+                      #ES = round(ES, 3)
+                      ) %>%
                group_by(Survey) %>%
                arrange(Survey),
              caption = 'Post Group Results')
@@ -135,9 +143,12 @@ knitr::kable(time_wilcoxon %>%
                select(Group, Survey, 
                     `Pre` = Time.x, 
                     `Post` = Time.y, 
-                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
-               mutate(p = round(p, 3),
-                      ES = round(ES, 3)) %>%
+                    `W` = test_statistic, `p` = p.value
+                    #, `ES` = effect_size
+                    ) %>%
+               mutate(p = round(p, 3)#,
+                      #ES = round(ES, 3)
+                      ) %>%
                group_by(Survey) %>%
                arrange(Survey),
              caption = 'Experimental Group Results')
@@ -152,9 +163,12 @@ knitr::kable(time_wilcoxon %>%
                select(Group, Survey, 
                     `Pre` = Time.x, 
                     `Post` = Time.y, 
-                    `W` = test_statistic, `p` = p.value, `ES` = effect_size) %>%
+                    `W` = test_statistic, `p` = p.value
+                    #, `ES` = effect_size
+                    ) %>%
                mutate(p = round(p, 3),
-                      ES = round(ES, 3)) %>%
+                     # ES = round(ES, 3)
+                     ) %>%
                group_by(Survey) %>%
                arrange(Survey),
              caption = 'Control Group Results')
@@ -166,4 +180,4 @@ knitr::kable(time_wilcoxon %>%
 
 W  = Test Statistic from Wilcoxon Test  
 p  = P-Value of W   
-ES = Effect Size W
+~~ES = Effect Size W~~
