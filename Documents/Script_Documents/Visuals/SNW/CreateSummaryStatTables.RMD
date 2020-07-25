@@ -1,0 +1,48 @@
+---
+title: "Summary Stat Tables"
+author: "Shantel Ward"
+date: "7/24/2020"
+output: html_document
+---
+  
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+
+faces <- read_csv("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Data/cleaned_FACES_data.csv")
+#faces <- read_csv("../../../../Data/cleaned_FACES_data.csv")
+faces_tbl <- faces %>% 
+  mutate(Survey = factor(Survey)) %>%
+  group_by(`Participant #`, Time, Group, Survey) %>%
+  summarise(Total_Score = sum(Response),
+            Total_Questions = length(unique(Question)))
+
+#Pre Intervention Summary Stats
+pre_exp_stats<-faces_tbl%>%filter(Time == "Pre", Group == "Experimental")%>%group_by(Survey,Group)%>%summarise(Pre_Exp_Median = median(Total_Score), Pre_Exp_IQR = IQR(Total_Score))%>%select(-Group)
+
+pre_con_stats<-faces_tbl%>%filter(Time == "Pre", Group == "Control")%>%group_by(Survey,Group)%>%summarise(Pre_Con_Median = median(Total_Score), Pre_Con_IQR = IQR(Total_Score))%>%select(-Group)
+
+knitr::kable(inner_join(pre_exp_stats,pre_con_stats),align = 'c', caption =  'Pre Intervention Summary Statistics', digits = 2)
+
+
+#Post Intervention Summary Stats
+post_exp_stats<-faces_tbl%>%filter(Time == "Post", Group == "Experimental")%>%group_by(Survey,Group)%>%summarise(Post_Exp_Median = median(Total_Score), Post_Exp_IQR = IQR(Total_Score))%>%select(-Group)
+
+post_con_stats<-faces_tbl%>%filter(Time == "Post", Group == "Control")%>%group_by(Survey,Group)%>%summarise(Post_Con_Median = median(Total_Score), Post_Con_IQR = IQR(Total_Score))%>%select(-Group)
+
+knitr::kable(inner_join(post_exp_stats,post_con_stats),align = 'c', caption =  'Post Intervention Summary Statistics', digits = 2)
+
+
+#Experimental Summary Stats
+knitr::kable(inner_join(pre_exp_stats,post_exp_stats),align = 'c', caption =  'Experimental Group Summary Statistics', digits = 2)
+
+#Control Summary Stats
+knitr::kable(inner_join(pre_con_stats,post_con_stats),align = 'c', caption =  'Control Group Summary Statistics', digits = 2)
+
+
+
+#setwd("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Documents/Script_Documents/Visuals/SNW")
+
+
+```
+

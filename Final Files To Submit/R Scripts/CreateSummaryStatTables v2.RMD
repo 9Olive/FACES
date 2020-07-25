@@ -1,0 +1,44 @@
+---
+title: "Summary Stat Tables"
+author: "Shantel Ward"
+date: "7/24/2020"
+output: html_document
+---
+  
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+
+faces <- read_csv("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Data/cleaned_FACES_data.csv")
+#faces <- read_csv("../../../../Data/cleaned_FACES_data.csv")
+faces_tbl <- faces %>% 
+  mutate(Survey = factor(Survey)) %>%
+  group_by(`Participant #`, Time, Group, Survey) %>%
+  summarise(Total_Score = sum(Response),
+            Total_Questions = length(unique(Question)))
+
+#Median and IQR Summary Stats
+pre_exp_stats<-faces_tbl%>%filter(Time == "Pre", Group == "Experimental")%>%group_by(Survey,Group)%>%summarise(Pre_Exp_Median = median(Total_Score), Pre_Exp_IQR = IQR(Total_Score))%>%select(-Group)
+
+pre_con_stats<-faces_tbl%>%filter(Time == "Pre", Group == "Control")%>%group_by(Survey,Group)%>%summarise(Pre_Con_Median = median(Total_Score), Pre_Con_IQR = IQR(Total_Score))%>%select(-Group)
+
+post_exp_stats<-faces_tbl%>%filter(Time == "Post", Group == "Experimental")%>%group_by(Survey,Group)%>%summarise(Post_Exp_Median = median(Total_Score), Post_Exp_IQR = IQR(Total_Score))%>%select(-Group)
+
+post_con_stats<-faces_tbl%>%filter(Time == "Post", Group == "Control")%>%group_by(Survey,Group)%>%summarise(Post_Con_Median = median(Total_Score), Post_Con_IQR = IQR(Total_Score))%>%select(-Group)
+
+allStats<-inner_join(pre_exp_stats,pre_con_stats)%>%inner_join(.,post_exp_stats)%>%inner_join(.,post_con_stats)
+
+#Formatting Tables 
+knitr::kable(allStats%>%select(ends_with("Median")),align = 'c', caption =  'Median Summary Statistics', digits = 2)
+
+knitr::kable(allStats%>%select(ends_with("IQR")),align = 'c', caption =  'Interquartile Range (IQR) Summary Statistics', digits = 2)
+
+
+
+
+
+#setwd("C:/Users/17739/Desktop/ST 542 Statistical Practice/FinalProject/FACES/Documents/Script_Documents/Visuals/SNW")
+
+
+```
+
