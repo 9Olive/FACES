@@ -1,0 +1,113 @@
+---
+title: "Bootstrap"
+---
+
+```{r}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+
+```{r}
+faces <- read_csv('../../Data/cleaned_FACES_data.csv', col_types = c('ffffdf'))
+```
+
+## Bootstrap:
+
+1. Filter data down that we want to bootstrap (not really apart of the bootstrap process)
+
+2. Non-parameteric Bootstrap:
+
+We pull from our samples for non-parameteric bootstrap. Typically, we calculate some parameter. I calculate the mean for 50,000 participants :)
+
+```{r}
+#how many different n to test
+m <- seq(from=5, to=60, by=5)
+#power dataframe for non-parametric
+power_PP <- data.frame('FACES' = numeric(length(m)), 'AKS' = numeric(length(m)), 
+                         'FES' = numeric(length(m)), 'SCS' = numeric(length(m)), 
+                         'FPPS' = numeric(length(m)), 'SEAS' = numeric(length(m)))
+
+```
+
+
+```{r}
+for (n in m) {
+  # Number of times to bootstrap
+  B <- 1e4
+  #survey categories
+  surveys <- as.character(unique(faces$Survey))
+  #dataframe to hold simulation results
+  pre.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
+                          'SCS' = numeric(B), 'FPPS' = numeric(B), 'SEAS' = numeric(B))
+  post.exp <- data.frame('FACES' = numeric(B), 'AKS' = numeric(B), 'FES' = numeric(B),
+                          'SCS' = numeric(B), 'FPPS' = numeric(B), 'SEAS' = numeric(B))
+  
+  for (j in 1:6) {
+    sample_faces_pre <- faces %>%
+      filter(Time == 'Pre', 
+             Group == 'Experimental',
+             Survey == surveys[j]) %>%
+      group_by(`Participant #`) %>%
+      summarise(Total = sum(Response)) %>%
+      ungroup()
+    
+    sample_faces_post <- faces %>%
+      filter(Time == 'Post', 
+             Group == 'Experimental',
+             Survey == surveys[j]) %>%
+      group_by(`Participant #`) %>%
+      summarise(Total = sum(Response)) %>%
+      ungroup()
+  
+    # Vector to store means
+    pval <- numeric()
+    
+    for (i in 1:B) {
+      dist_pre <- data.frame('Score' = numeric(n), 'Time' = "Pre")
+      dist_pre$Score <- sample(sample_faces_pre$Total, size = n, replace = T)
+      dist_post <- data.frame('Score' = numeric(n), 'Time' = "Post")
+      dist_post$Score <- sample(sample_faces_post$Total, size = (n), replace = T)
+      pval[i] <- wilcox.test(dist_post$Score, dist_pre$Score, 
+                              paired = TRUE,
+                              alternative="greater",
+                              data = dist,
+                              exact=FALSE)$p.value
+      
+    }
+    
+    power_PP[n / 5, j] <- mean(pval < 0.05)
+  }
+}
+```
+
+```{r}
+  #combine the data frames and change the column names
+  power <- power_PP
+  #add indexing for the graph
+  power$ExpN <- m
+  
+power %>%
+  pivot_longer(-ExpN, names_to = 'Survey', values_to = 'Proportion True') %>%
+  ggplot(aes(x = ExpN)) +
+  geom_line(aes(y = `Proportion True`, color = Survey),
+            size = 1, alpha = .75) +
+  facet_wrap(Survey ~.) +
+  labs(x = "Experimental Group Sample Size",
+       title = "Pre-Post Power Calculations") +
+  theme(text = element_text(size = 14),legend.position = "none")
+```
+
+
+Print to table
+```{r}
+knitr::kable(select(group_wilcoxon, Time, Survey, 
+                    Group.x, Group.y, 
+                    test_statistic, p.value, effect_size) %>%
+               group_by(Survey) %>%
+               arrange(Survey, p.value, Time))
+
+
+```
+
+
